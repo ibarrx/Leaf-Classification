@@ -1,0 +1,3 @@
+/data/tomato/.ipynb_checkpoints/
+*.pickle
+/data/tomato/__pycache__
