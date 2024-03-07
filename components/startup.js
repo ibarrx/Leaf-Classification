@@ -24,7 +24,7 @@ export default function App() {
       
       <Button onPress={handleButtonPress} mode="contained"
       style={styles.getStartedButton}
-      labelStyle={{color: '#0fa47a', fontSize:'22'}}>
+      labelStyle={{color: '#0fa47a', fontSize:'21'}}>
 
         Get Started
       </Button>
