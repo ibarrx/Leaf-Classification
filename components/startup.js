@@ -12,10 +12,10 @@ const Text = (props) => {
   );
 };
 
-export default function App() {
+export default function App( { navigation}) {
   const handleButtonPress = () => {
-    // Your button press logic here
-    console.log('Button pressed');
+    console.log('Home button pressed!');
+    navigation.navigate('loginScreen');
   };
 
   return (
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginBottom: 36,
     alignItems: 'center',
-    width: '89%',
+    width: '94%',
   },
   getStartedButton: {
     marginTop: 20,
