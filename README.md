@@ -3,8 +3,8 @@ CSE 120 Capstone Project
 
 To run the project on your own device:
 
-You must have the [expo go](https://expo.dev/client) app installed on your testing device and also [NodeJs](https://nodejs.org/en/download/current) installed on your development device. 
-[Watchman](https://facebook.github.io/watchman/docs/install#buildinstall) is also required for MacOS/Linux.
+You must have the [expo go](https://expo.dev/client _blank) app installed on your testing device and also [NodeJs](https://nodejs.org/en/download/current _blank) installed on your development device. 
+[Watchman](https://facebook.github.io/watchman/docs/install#buildinstall _blank) is also required for MacOS/Linux.
 
 You need to run 
 
