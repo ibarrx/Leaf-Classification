@@ -1,18 +1,48 @@
 import React, { useState } from 'react';
-import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
 import { StyleSheet, View, Text as RNText, Dimensions } from 'react-native';
 import { Button, IconButton, TextInput } from 'react-native-paper';
 import { Image } from 'react-native';
 
 export default function App({ navigation }) {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   
-    const handleButtonPress = () => {
-      console.log('login button pressed!');
+    const handleButtonPress = async () => {
+      if (confirmPassword === password) {
+        try {
+          const response = await fetch('http://127.0.0.1:5000/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password,
+            }),
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            Alert.alert('Error', errorData.error);
+            return;
+          }
+    
+          const data = await response.json();
+          Alert.alert('Success', data.message);
+          // Redirect or navigate to home screen
+        } catch (error) {
+          console.error('Error:', error);
+          Alert.alert('Error', 'An error occurred. Please try again.');
+        }
+      } else {
+        Alert.alert('Passwords do not match.');
+      }
     };
+    
   
     const handleCreateAccountClick = () => {
       navigation.navigate('loginScreen');
@@ -49,6 +79,8 @@ export default function App({ navigation }) {
               autoCorrect={false}
               style={styles.textInput}
               blurOnSubmit={true}
+              value={email}
+              onChangeText={setEmail}
             />
     
             {/* Password TextInput */}

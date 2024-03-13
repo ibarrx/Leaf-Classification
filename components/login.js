@@ -14,11 +14,11 @@ export default function App({ navigation }) {
 
   const handleButtonPress = () => {
     console.log('login button pressed!');
+    navigation.navigate('homeScreen');
   };
 
   const handleCreateAccountClick = () => {
     navigation.navigate('registerScreen');
-
   };
 
   return (

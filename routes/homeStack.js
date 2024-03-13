@@ -13,7 +13,7 @@ const screens = createSwitchNavigator(
   startUpScreen: startUp,
   loginScreen: login,
   registerScreen: register,
-  // homePageScreen: homePage,
+  homeScreen: homePage,
   // settingPageScreen: settingPage,
   // submissionPageScreen: submissionPage
 },
