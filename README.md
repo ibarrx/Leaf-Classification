@@ -8,7 +8,7 @@ You must have the [expo go](https://expo.dev/client) app installed on your testi
 
 You need to run 
 
-    npm install expo
+    npm install
     npx expo start
 
 This will start a local environment session on your network. You can then scan the QR code generated in the terminal and it will appear on your phone.
