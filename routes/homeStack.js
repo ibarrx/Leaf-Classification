@@ -1,36 +1,26 @@
 import React from 'react';
-import { createAppContainer } from '@react-navigation/stack';
+import { createAppContainer, createSwitchNavigator} from 'react-navigation';
 import { createStackNavigator } from '@react-navigation/stack';
-import startUp from './components/startup';
-import homePage from './components/home';
-import registerLogin from './components/register';
-import settingPage from './components/settings';
-import submissionPage from './components/submissions'
+import startUp from '../components/startup';
+import login from '../components/login';
+import register from '../components/register';
+import homePage from '../components/home';
+import settingPage from '../components/settings';
+import submissionPage from '../components/submissions'
 
-const screens = 
+const screens = createSwitchNavigator(
 {
-  startUp:
-  {
-    screen: startUp
-  },
-  homePage:
-  {
-    screen: homePage
-  },
-  registerLogin:
-  {
-    screen: registerLogin
-  },
-  settingPage:
-  {
-    screen: settingPage
-  },
-  submissionPage:
-  {
-    screen: submissionPage
-  }
-
+  startUpScreen: startUp,
+  loginScreen: login,
+  registerScreen: register,
+  // homePageScreen: homePage,
+  // settingPageScreen: settingPage,
+  // submissionPageScreen: submissionPage
+},
+{
+  initialRouteName: 'startUpScreen',
 }
+);
 
-const homeStack = createAppContainer(screens);
-export default createAppContainer(homeStack);
+//const homeStack = createAppContainer(screens);
+export default createAppContainer(screens);

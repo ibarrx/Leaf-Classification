@@ -1,4 +1,6 @@
+import 'react-native-gesture-handler';
 import React from 'react';
+<<<<<<< HEAD
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text as RNText, TouchableOpacity } from 'react-native'; // Import TouchableOpacity
 import { Button } from 'react-native-paper';
@@ -76,3 +78,11 @@ const styles = StyleSheet.create({
   },
 });
 
+=======
+import {AppLoading} from 'expo';
+import Navigator from './routes/homeStack'
+
+export default function App(){
+  return (<Navigator/>);
+}
+>>>>>>> 3385bf6a8bd5be0bf7b4f46ce0b84b8eff59cd2e

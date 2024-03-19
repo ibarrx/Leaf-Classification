@@ -25,7 +25,7 @@ Authors:
 
 Angel Ibarra 
 
-Christian Espinosa
+Cristian Espinosa
 
 Javier Miranda
 
