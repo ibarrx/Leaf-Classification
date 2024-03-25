@@ -7,7 +7,7 @@ class CustomDataset(Dataset):
     
     def __len__(self):
         return len(self.data)
-        # return 10
+        # return 10 if u wanna train fast
     
     def __getitem__(self, idx):
         image, label = self.data[idx]
