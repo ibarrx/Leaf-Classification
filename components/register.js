@@ -14,7 +14,7 @@ export default function App({ navigation }) {
     const handleButtonPress = async () => {
       if (confirmPassword === password) {
         try {
-          const response = await fetch('http://127.0.0.1:5000/signup', {
+          const response = await fetch('http://192.168.1.49:5000/signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ export default function App({ navigation }) {
     
           const data = await response.json();
           Alert.alert('Success', data.message);
-          // Redirect or navigate to home screen
+          navigation.navigate('homeScreen')
         } catch (error) {
           console.error('Error:', error);
           Alert.alert('Error', 'An error occurred. Please try again.');

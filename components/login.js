@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
-import { StyleSheet, View, Text as RNText, Dimensions } from 'react-native';
+import { StyleSheet, View, Text as RNText, Dimensions, Alert } from 'react-native';
 import { Button, IconButton, TextInput } from 'react-native-paper';
 import { Image } from 'react-native';
 
 export default function App({ navigation }) {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
 
@@ -12,10 +13,38 @@ export default function App({ navigation }) {
         setPasswordVisible(!passwordVisible);
         };
 
-  const handleButtonPress = () => {
-    console.log('login button pressed!');
-    navigation.navigate('homeScreen');
-  };
+        const handleButtonPress = async () => {
+          if (password !== '' && email !== '') {
+            try {
+              const response = await fetch('http://192.168.1.49:5000/login', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  email: email,
+                  password: password,
+                }),
+              });
+        
+              if (!response.ok) {
+                const errorData = await response.json();
+                Alert.alert('Error', errorData.error);
+                return;
+              }
+        
+              const data = await response.json();
+              navigation.navigate('homeScreen');
+            } catch (error) {
+              console.error('Error:', error);
+              Alert.alert('Error', 'An error occurred. Please try again.');
+            }
+          } else {
+            Alert.alert('Password or email cannot be empty.');
+          }
+        };
+        
+
 
   const handleCreateAccountClick = () => {
     navigation.navigate('registerScreen');
@@ -37,24 +66,29 @@ export default function App({ navigation }) {
 
         {/* Email TextInput */}
         <TextInput
-          label="Email"
-          mode="outlined"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          style={styles.textInput}
-          blurOnSubmit={true} // Add this line
-        />
+              label="Email"
+              mode="outlined"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={styles.textInput}
+              blurOnSubmit={true}
+              value={email}
+              onChangeText={setEmail}
+            />
 
         {/* Password TextInput */}
         <TextInput
-        label="Password"
-        mode="outlined"
-        secureTextEntry={!passwordVisible}
-        autoCapitalize="none"
-        style={styles.textInput}
-        right={<TextInput.Icon name={passwordVisible } icon='eye' onPress={togglePasswordVisibility} />}
-        />
+          label="Password"
+          mode="outlined"
+          secureTextEntry={!passwordVisible}
+          autoCapitalize="none"
+          style={styles.textInput}
+          value={password} // Add this line
+          onChangeText={setPassword} // And this one
+          right={<TextInput.Icon name={passwordVisible } icon='eye' onPress={togglePasswordVisibility} />}
+          />
+
 
 
         {/* Create account text */}
