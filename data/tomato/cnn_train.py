@@ -8,14 +8,12 @@ Created on Tue Sep  5 17:17:40 2017
 #Part 1 : Building a CNN
 
 #import Keras packages
-from keras.models import Sequential
-from keras.layers import Convolution2D
-from keras.layers import MaxPooling2D
-from keras.layers import Flatten
-from keras.layers import Dense
-from keras.layers import Dropout
+import tensorflow as tf
+from tensorflow.keras.models import Sequential # Correct for TF 2.0+
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 import numpy as np
-from keras.utils.vis_utils import plot_model
+from tensorflow.keras.utils import plot_model
+
 
 
 # Initializing the CNN
@@ -23,23 +21,23 @@ from keras.utils.vis_utils import plot_model
 np.random.seed(1337)
 classifier = Sequential()
 
-classifier.add(Convolution2D(32, 3, 3, input_shape = (128, 128, 3), activation = 'relu'))
+classifier.add(Conv2D(32, 3, 3, input_shape = (128, 128, 3), activation = 'relu'))
 classifier.add(MaxPooling2D(pool_size = (2, 2)))
-classifier.add(Convolution2D(16, 3, 3, activation = 'relu'))
+classifier.add(Conv2D(16, 3, 3, activation = 'relu'))
 classifier.add(MaxPooling2D(pool_size = (2, 2)))
-classifier.add(Convolution2D(8, 3, 3, activation = 'relu'))
-classifier.add(MaxPooling2D(pool_size = (2, 2)))
+#classifier.add(Conv2D(8, 3, 3, activation = 'relu'))
+#classifier.add(MaxPooling2D(pool_size = (2, 2)))
 
 
 
 classifier.add(Flatten())
 
 #hidden layer
-classifier.add(Dense(output_dim = 128, activation = 'relu'))
-classifier.add(Dropout(p = 0.5))
+classifier.add(Dense(units = 128, activation = 'relu'))
+classifier.add(Dropout(rate = 0.5))
 
 #output layer
-classifier.add(Dense(output_dim = 10, activation = 'softmax'))
+classifier.add(Dense(units = 10, activation = 'softmax'))
 
 classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 print(classifier.summary())
@@ -73,7 +71,7 @@ test_set = test_datagen.flow_from_directory(
         class_mode='categorical')
 
 
-classifier.fit_generator(
+classifier.fit(
         training_set,
         steps_per_epoch=20,
         epochs=10000,
