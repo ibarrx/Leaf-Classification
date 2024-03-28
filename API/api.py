@@ -30,8 +30,7 @@ def signup():
                 "UserEmail": user_email,
                 "UserPassword": user_password
             }
-
-            # Use the put method to specify the exact location to store the data
+            
             firebase.post('/Users', new_user)
 
             return jsonify({"message": "User created successfully."}), 201
