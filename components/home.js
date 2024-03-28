@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { CommonActions  } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -50,14 +50,14 @@ function NewSubmissionSection() {
 
 export default function MyComponent({navigation}) {
   return (
-    <NavigationContainer>
+    
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
         }}
       >
         <Tab.Screen
-          name="Home"
+          name="home"
           component={HomeScreen}
           options={{
             tabBarLabel: 'Home',
@@ -77,13 +77,13 @@ export default function MyComponent({navigation}) {
           }}
         />
       </Tab.Navigator>
-    </NavigationContainer>
   );
 }
 
 function HomeScreen() {
   return (
     <Text>Home!</Text>
+    
   );
 }
 

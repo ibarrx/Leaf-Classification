@@ -33,7 +33,7 @@ export default function App({ navigation }) {
     
           const data = await response.json();
           Alert.alert('Success', data.message);
-          navigation.navigate('homeScreen')
+          navigation.navigate('Home')
         } catch (error) {
           console.error('Error:', error);
           Alert.alert('Error', 'An error occurred. Please try again.');

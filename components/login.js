@@ -3,6 +3,19 @@ import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity } from 'rea
 import { StyleSheet, View, Text as RNText, Dimensions, Alert } from 'react-native';
 import { Button, IconButton, TextInput } from 'react-native-paper';
 import { Image } from 'react-native';
+import { CommonActions } from '@react-navigation/native';
+
+
+function navigateToHome(navigation) {
+  navigation.dispatch(
+    CommonActions.reset({
+      index: 0,
+      routes: [
+        { name: 'Home' },
+      ],
+    })
+  );
+}
 
 export default function App({ navigation }) {
     const [email, setEmail] = useState('');
@@ -34,7 +47,7 @@ export default function App({ navigation }) {
               }
         
               const data = await response.json();
-              navigation.navigate('homeScreen');
+              navigateToHome(navigation);
             } catch (error) {
               console.error('Error:', error);
               Alert.alert('Error', 'An error occurred. Please try again.');
