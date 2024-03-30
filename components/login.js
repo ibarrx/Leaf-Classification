@@ -1,84 +1,86 @@
-import React, { useState } from 'react';
-import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
-import { StyleSheet, View, Text as RNText, Dimensions, Alert } from 'react-native';
-import { Button, IconButton, TextInput } from 'react-native-paper';
-import { Image } from 'react-native';
-import { CommonActions } from '@react-navigation/native';
-
+import React, { useState, useContext, useRef } from 'react';
+import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, View, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text as RNText, Image, Keyboard } from 'react-native';
+import { TextInput, IconButton } from 'react-native-paper';
+import AuthContext from '../routes/AuthContext';
 
 function navigateToHome(navigation) {
-  navigation.dispatch(
-    CommonActions.reset({
-      index: 0,
-      routes: [
-        { name: 'Home' },
-      ],
-    })
-  );
+  navigation.navigate('Home');
 }
 
-export default function App({ navigation }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordVisible, setPasswordVisible] = useState(false);
+export default function Login({ navigation }) {
+  const { signIn } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false); // Add loading state
+  const emailInputRef = useRef(null);
 
-    const togglePasswordVisibility = () => {
-        setPasswordVisible(!passwordVisible);
-        };
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
 
-        const handleButtonPress = async () => {
-          if (password !== '' && email !== '') {
-            try {
-              const response = await fetch('http://192.168.1.49:5000/login', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  email: email,
-                  password: password,
-                }),
-              });
-        
-              if (!response.ok) {
-                const errorData = await response.json();
-                Alert.alert('Error', errorData.error);
-                return;
-              }
-        
-              const data = await response.json();
-              navigateToHome(navigation);
-            } catch (error) {
-              console.error('Error:', error);
-              Alert.alert('Error', 'An error occurred. Please try again.');
-            }
-          } else {
-            Alert.alert('Password or email cannot be empty.');
-          }
-        };
-        
+  const handleButtonPress = async () => {
+    if (password !== '' && email !== '') {
+      try {
+        setLoading(true); // Set loading to true when starting the request
+        const response = await fetch('http://192.168.1.49:5000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        });
 
+        if (!response.ok) {
+          const errorData = await response.json();
+          Alert.alert('Error', errorData.error);
+          return;
+        }
+
+        const data = await response.json();
+        signIn(data.token); // Set user token upon successful login
+        navigateToHome(navigation);
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An error occurred. Please try again.');
+      } finally {
+        setLoading(false); // Set loading to false after the request is completed
+      }
+    } else {
+      Alert.alert('Password or email cannot be empty.');
+    }
+  };
 
   const handleCreateAccountClick = () => {
     navigation.navigate('registerScreen');
   };
 
-  return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={styles.content}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={require('../assets/login.png')}
-            style={styles.image}
-          />
-        </View>
-        <RNText style={styles.text}>Welcome back</RNText>
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+    emailInputRef.current.blur();
+  };
 
-        {/* Email TextInput */}
-        <TextInput
+  return (
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <View style={styles.container}>
+        <KeyboardAvoidingView 
+          style={styles.content}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.content}>
+            <View style={styles.imageContainer}>
+              <Image
+                source={require('../assets/login.png')}
+                style={styles.image}
+              />
+            </View>
+            <RNText style={styles.text}>Welcome back</RNText>
+
+            <TextInput
               label="Email"
               mode="outlined"
               keyboardType="email-address"
@@ -88,43 +90,48 @@ export default function App({ navigation }) {
               blurOnSubmit={true}
               value={email}
               onChangeText={setEmail}
+              ref={emailInputRef}
             />
 
-        {/* Password TextInput */}
-        <TextInput
-          label="Password"
-          mode="outlined"
-          secureTextEntry={!passwordVisible}
-          autoCapitalize="none"
-          style={styles.textInput}
-          value={password} // Add this line
-          onChangeText={setPassword} // And this one
-          right={<TextInput.Icon name={passwordVisible } icon='eye' onPress={togglePasswordVisibility} />}
-          />
+            <TextInput
+              label="Password"
+              mode="outlined"
+              secureTextEntry={!passwordVisible}
+              autoCapitalize="none"
+              style={styles.textInput}
+              value={password}
+              onChangeText={setPassword}
+              right={<TextInput.Icon icon="eye" onPress={togglePasswordVisibility} />}
+            />
 
+            <RNText style={styles.createAccountText}>
+              Need an account?{' '}
+              <TouchableOpacity onPress={handleCreateAccountClick}>
+                <RNText style={styles.clickHereText}>Click here!</RNText>
+              </TouchableOpacity>
+            </RNText>
+          </View>
 
+          <View style={styles.buttonContainer}>
+            <IconButton
+              icon="arrow-right"
+              iconColor={'#fff'}
+              size={48}
+              onPress={handleButtonPress}
+              containerColor={'#0fa47a'}
+            />
+          </View>
+        </KeyboardAvoidingView>
 
-        {/* Create account text */}
-        <RNText style={styles.createAccountText}>
-          Need an account?{' '}
-          <TouchableOpacity onPress={handleCreateAccountClick}>
-            <RNText style={styles.clickHereText}>Click here!</RNText>
-          </TouchableOpacity>
-        </RNText>
+        {loading && (
+          <View style={styles.overlay}>
+              <ActivityIndicator animating = {true} size="large" color="#0fa47a" style={{ transform: [{ scale: 2 }] }}/>
+          </View>
+        )}
+
+        <StatusBar style="auto" />
       </View>
-
-      <View style={styles.buttonContainer}>
-        <IconButton
-          icon="arrow-right"
-          iconColor={'#fff'}
-          size={48}
-          onPress={handleButtonPress}
-          containerColor={'#0fa47a'}
-        />
-      </View>
-
-      <StatusBar style="auto" />
-    </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -164,7 +171,6 @@ const styles = StyleSheet.create({
   createAccountText: {
     marginTop: 10,
     textAlign: 'center',
-    
   },
   clickHereText: {
     color: '#0fa47a',
@@ -175,5 +181,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
     margin: 20,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
