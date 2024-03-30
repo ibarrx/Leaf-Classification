@@ -1,15 +1,17 @@
+import jwt
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from firebase import firebase
+from flask_bcrypt import Bcrypt
+from datetime import datetime, timedelta, timezone
 
 firebase = firebase.FirebaseApplication('https://anomaleaf-d6feb-default-rtdb.firebaseio.com', None)
 app = Flask(__name__)
 CORS(app)
+bcrypt = Bcrypt(app)
 
-@app.route("/")
-def home():
-    result = firebase.get('/Users', None)
-    return str(result)
+# Secret key for JWT (keep it secure)
+app.config['SECRET_KEY'] = '3fe988e252dbd290c6710248b58658d0ee9f2bb2b5803d411fdbda78cb8463fa'
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -23,17 +25,32 @@ def signup():
             users = firebase.get('/Users', None)
 
             if not users:
-                users = []  # If users is None, initialize as an empty list
+                users = {}  # If users is None, initialize as an empty dictionary
 
+            # Check if user already exists
+            for user_data in users.values():
+                if user_data.get("UserEmail") == user_email:
+                    return jsonify({"error": "User already exists."}), 409
 
+            # Hash the password
+            hashed_password = bcrypt.generate_password_hash(user_password).decode('utf-8')
+
+            # If user doesn't exist, create new user
             new_user = {
                 "UserEmail": user_email,
-                "UserPassword": user_password
+                "UserPassword": hashed_password
             }
             
             firebase.post('/Users', new_user)
 
-            return jsonify({"message": "User created successfully."}), 201
+            # Generate JWT token for the new user
+            token = jwt.encode({
+                'user_id': user_email,
+                'exp': datetime.now(timezone.utc) + timedelta(days=60)  # Token expiry in 60 days
+            }, app.config['SECRET_KEY'])
+
+            # Return the token in the response
+            return jsonify({"token": token}), 201
     else:
         return jsonify({"error": "Method not allowed."}), 405
 
@@ -46,19 +63,28 @@ def login():
             user_email = request.json.get("email")
             user_password = request.json.get("password")
 
-            # Retrieve users data from Firebase
+            # Retrieve all users data from Firebase
             users = firebase.get('/Users', None)
 
             if users is None:
                 return jsonify({"error": "No users found."}), 404
 
-            # Assuming users is a dictionary
-            for user_id, user_data in users.items():
-                if user_data.get("UserEmail") == user_email and user_data.get("UserPassword") == user_password:
-                    return jsonify({"message": "User found.", "UserID": user_id}), 200
+            # Check if the user with the provided email exists
+            user_data = next((user_data for user_data in users.values() if user_data.get("UserEmail") == user_email), None)
 
-            # If no matching user is found
-            return jsonify({"error": "Incorrect Username or Password."}), 401
+            if user_data is None:
+                return jsonify({"error": "Wrong email or password"}), 401
+
+            # Verify the password
+            if bcrypt.check_password_hash(user_data.get("UserPassword"), user_password):
+                # Generate JWT token
+                token = jwt.encode({
+                    'user_id': user_data.get("UserEmail"),
+                    'exp': datetime.now(timezone.utc) + timedelta(days=60)  # Token expiry in 60 days
+                }, app.config['SECRET_KEY'])
+                return jsonify({"token": token}), 200
+            else:
+                return jsonify({"error": "Wrong email or password"}), 401
     else:
         return jsonify({"error": "Method not allowed."}), 405
 

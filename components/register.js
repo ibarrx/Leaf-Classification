@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
-import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
-import { StyleSheet, View, Text as RNText, Dimensions } from 'react-native';
-import { Button, IconButton, TextInput } from 'react-native-paper';
-import { Image } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text as RNText, Image } from 'react-native';
+import { TextInput, IconButton } from 'react-native-paper';
+import { CommonActions } from '@react-navigation/native';
+import AuthContext from '../routes/AuthContext';
 
-export default function App({ navigation }) {
+export default function Register({ navigation }) {
+    const { signIn } = useContext(AuthContext);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  
+    const [loading, setLoading] = useState(false);
+
     const handleButtonPress = async () => {
       if (confirmPassword === password) {
         try {
+          console.log('Start loading...');
+          setLoading(true); // Start loading indicator
           const response = await fetch('http://192.168.1.49:5000/signup', {
             method: 'POST',
             headers: {
@@ -28,22 +33,27 @@ export default function App({ navigation }) {
           if (!response.ok) {
             const errorData = await response.json();
             Alert.alert('Error', errorData.error);
+            setLoading(false); // Stop loading indicator
+            console.log('Stop loading (Error)');
             return;
           }
     
+          console.log('Stop loading (Success)');
           const data = await response.json();
-          Alert.alert('Success', data.message);
-          navigation.navigate('Home')
+          signIn(data.token);
+          navigation.navigate('Home');
         } catch (error) {
           console.error('Error:', error);
           Alert.alert('Error', 'An error occurred. Please try again.');
+          setLoading(false); // Stop loading indicator
+          console.log('Stop loading (Error)');
         }
       } else {
         Alert.alert('Passwords do not match.');
       }
     };
     
-  
+    
     const handleCreateAccountClick = () => {
       navigation.navigate('loginScreen');
     };
@@ -57,8 +67,9 @@ export default function App({ navigation }) {
     };
   
     return (
+      <View style={styles.container}>
         <KeyboardAvoidingView 
-          style={styles.container}
+          style={styles.content}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           <View style={styles.content}>
@@ -92,7 +103,7 @@ export default function App({ navigation }) {
               onChangeText={setPassword}
               autoCapitalize="none"
               style={styles.textInput}
-              right={<TextInput.Icon name={passwordVisible} icon = 'eye' onPress={togglePasswordVisibility} />}
+              right={<TextInput.Icon  icon = 'eye' onPress={togglePasswordVisibility} />}
             />
     
             {/* Confirm Password TextInput */}
@@ -104,7 +115,7 @@ export default function App({ navigation }) {
               onChangeText={setConfirmPassword}
               autoCapitalize="none"
               style={styles.textInput}
-              right={<TextInput.Icon name={confirmPasswordVisible} icon ='eye' onPress={toggleConfirmPasswordVisibility} />}
+              right={<TextInput.Icon icon ='eye' onPress={toggleConfirmPasswordVisibility} />}
             />
     
             {/* Create account text */}
@@ -122,12 +133,18 @@ export default function App({ navigation }) {
               containerColor={'#0fa47a'}
             />
           </View>
-    
-          <StatusBar style="auto" />
         </KeyboardAvoidingView>
-      );
-    }
-  
+
+        {loading && (
+          <View style={styles.overlay}>
+            <ActivityIndicator animating = {true} size="large" color="#0fa47a" style={{ transform: [{ scale: 2 }] }}/>
+          </View>
+        )}
+
+        <StatusBar style="auto" />
+      </View>
+    );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -177,4 +194,15 @@ const styles = StyleSheet.create({
     right: 0,
     margin: 20,
   },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
 });
