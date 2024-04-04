@@ -5,6 +5,8 @@ import { View, ScrollView, TouchableOpacity, StyleSheet, Button, Image } from 'r
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
+import { useAuth } from '../routes/AuthContext';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -47,7 +49,7 @@ export default function MyComponent({ navigation }) {
 const HomeScreen = () => {
   const [image, setImage] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
-
+  const { userToken, userEmail } = useAuth();
   useEffect(() => {
     (async () => {
       const status = await requestCameraPermission();
@@ -55,31 +57,88 @@ const HomeScreen = () => {
     })();
   }, []);
 
+  const uploadImage = async (uri, base64Data) => {
+    let formData = new FormData();
+    // Assuming `email` and `token` are correctly defined and accessible here
+    formData.append('userID', userEmail); // Make sure 'email' is defined
+  
+    // Splitting the URI to get the file name and type
+    const uriParts = uri.split('/');
+    const fileName = uriParts[uriParts.length - 1];
+    const fileType = uri.split('.').pop();
+  
+    formData.append('image', {
+      uri: uri,
+      name: `upload.${fileType}`, // Ensure this name matches what your server expects
+      type: `image/${fileType}`, // Correct MIME type
+    });
+    // if ios or android 
+    
+    formData.append('imageBase64', base64Data);
+
+    console.log(base64Data);
+    
+    try {
+
+      
+      const response = await fetch('http://192.168.1.77:5000/upload_image', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${userToken}`, // Ensure the token is correctly passed
+          // Do NOT explicitly set 'Content-Type': 'multipart/form-data'
+          // Let the browser/client set it
+        },
+      });
+  
+      const responseJson = await response.json();
+      if (response.ok) {
+        alert('Upload successful');
+        console.log(responseJson);
+      } else {
+        alert(`Upload failed: ${responseJson.error}`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+  
+  
+  
+  
   const takePicture = async () => {
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      base64: true,
     });
-
+  
     if (!result.cancelled) {
       setImage(result.uri);
+      uploadImage(result.uri, result.base64); // Call upload function after image is set
     }
   };
-
+  
   const selectImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      base64: true,
     });
-
+  
     if (!result.cancelled) {
       setImage(result.uri);
+      console.log(result);
+      uploadImage(result.uri, result.base64); // Call upload function after image is set
     }
   };
+  
 
   if (hasPermission === null) {
     return <View />;
@@ -111,7 +170,7 @@ const HomeScreen = () => {
           <Icon name="camera" size={64} />
           <Text style={styles.buttonText}>New Scan</Text>
         </TouchableOpacity>
-        {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+        {image && <Image source={{ uri: image }} style={{ width: 224, height: 224 }} />}
 
         <View style={styles.scanOptions}>
           <TouchableOpacity style={styles.scanOptionCard} onPress={selectImage}>

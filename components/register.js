@@ -42,7 +42,7 @@ export default function Register({ navigation }) {
     
           console.log('Stop loading (Success)');
           const data = await response.json();
-          signIn(data.token);
+          signIn(data.token, email);
           navigation.navigate('Home');
         } catch (error) {
           console.error('Error:', error);
