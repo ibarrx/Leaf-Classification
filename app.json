@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Leaf-Classification",
-    "slug": "Leaf-Classification",
+    "name": "Anomaleaf",
+    "slug": "Anomaleaf",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,17 +15,23 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.Anomaleaf.Anomaleaf"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.Anomaleaf"
+        },
+      "package": "com.Anomaleaf.Anomaleaf"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "550f4d10-3252-4114-8b28-f4baa1782f7f"
+      }
     }
   }
 }
