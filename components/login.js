@@ -42,8 +42,8 @@ export default function Login({ navigation }) {
         }
 
         const data = await response.json();
-        signIn(data.token); // Set user token upon successful login
-        navigateToHome(navigation);
+        signIn(data.token, email); // Set user token upon successful login
+        navigateToHome(navigation); 
       } catch (error) {
         console.error('Error:', error);
         Alert.alert('Error', 'An error occurred. Please try again.');
