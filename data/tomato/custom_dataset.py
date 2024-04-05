@@ -6,12 +6,14 @@ class CustomDataset(Dataset):
         self.data = data
     
     def __len__(self):
-        return len(self.data)
+        #return len(self.data)
+        return 10
+        #if u wanna train fast
     
     def __getitem__(self, idx):
         image, label = self.data[idx]
 
-        image = torch.tensor(image)
+        image = torch.tensor(image).float() / 255.0
         label = torch.tensor(label)
 
         return (image, label)
