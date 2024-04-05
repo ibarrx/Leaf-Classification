@@ -114,7 +114,7 @@ const HomeScreen = () => {
       base64: true,
     });
   
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setImage(result.uri);
       uploadImage(result.uri, result.base64); // Call upload function after image is set
     }
@@ -167,8 +167,6 @@ const HomeScreen = () => {
           <Icon name="camera" size={64} />
           <Text style={styles.buttonText}>New Scan</Text>
         </TouchableOpacity>
-        {image && <Image source={{ uri: image }} style={{ width: 224, height: 224 }} />}
-
         <View style={styles.scanOptions}>
           <TouchableOpacity style={styles.scanOptionCard} onPress={selectImage}>
             <Icon name="upload" size={48} />
