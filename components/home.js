@@ -76,7 +76,7 @@ const HomeScreen = () => {
     
     formData.append('imageBase64', base64Data);
 
-    console.log(base64Data);
+    //console.log(base64Data);
     
     try {
 
@@ -95,7 +95,7 @@ const HomeScreen = () => {
       
       console.log(request);
       alert(request.isAnomaly ? 'Anomaly detected!' : 'No anomaly detected.'); // Do what you want with the data here.
-      
+
     } catch (error) {
       console.error(error);
       alert('An error occurred. Please try again.');
