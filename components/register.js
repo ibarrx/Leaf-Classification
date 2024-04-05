@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef } from 'react';
 import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, View, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
 import { StyleSheet, Text as RNText, Image, Keyboard } from 'react-native';
-import { TextInput, IconButton } from 'react-native-paper';
+import { TextInput, IconButton, DefaultTheme } from 'react-native-paper';
 import { CommonActions } from '@react-navigation/native';
 import AuthContext from '../routes/AuthContext';
 
@@ -15,6 +15,15 @@ export default function Register({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [isValidEmail, setIsValidEmail] = useState(true); // state to track email validation
     const emailInputRef = useRef(null);
+    const theme = {
+      ...DefaultTheme,
+      roundness: 2,
+      colors: {
+        ...DefaultTheme.colors,
+        primary: '#10A57B',
+        accent: '#10A57B',
+      },
+    };
 
     const handleButtonPress = async () => {
       if (confirmPassword === password && isValidEmail) { // Check for valid email format
@@ -113,6 +122,7 @@ export default function Register({ navigation }) {
                 onChangeText={handleEmailChange} // Use the custom handler for email validation
                 error={!isValidEmail} // Apply error style if email is not valid
                 ref={emailInputRef}
+                theme={theme}
               />
       
               {/* Password TextInput */}
@@ -125,6 +135,7 @@ export default function Register({ navigation }) {
                 autoCapitalize="none"
                 style={styles.textInput}
                 right={<TextInput.Icon  icon = 'eye' onPress={togglePasswordVisibility} />}
+                theme={theme}
               />
       
               {/* Confirm Password TextInput */}
@@ -136,7 +147,8 @@ export default function Register({ navigation }) {
                 onChangeText={setConfirmPassword}
                 autoCapitalize="none"
                 style={styles.textInput}
-                right={<TextInput.Icon icon ='eye' onPress={toggleConfirmPasswordVisibility} />}
+                right={<TextInput.Icon icon ='eye' onPress={toggleConfirmPasswordVisibility} />}                
+                theme={theme}
               />
       
               {/* Create account text */}

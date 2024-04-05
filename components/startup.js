@@ -14,7 +14,6 @@ const Text = (props) => {
 
 export default function App( { navigation}) {
   const handleButtonPress = () => {
-    console.log('Home button pressed!');
     navigation.navigate('loginScreen');
   };
 

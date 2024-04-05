@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef } from 'react';
 import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, View, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
 import { StyleSheet, Text as RNText, Image, Keyboard } from 'react-native';
-import { TextInput, IconButton } from 'react-native-paper';
+import { TextInput, IconButton, DefaultTheme } from 'react-native-paper';
 import AuthContext from '../routes/AuthContext';
 
 function navigateToHome(navigation) {
@@ -13,8 +13,17 @@ export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
   const emailInputRef = useRef(null);
+  const theme = {
+    ...DefaultTheme,
+    roundness: 2,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: '#10A57B',
+      accent: '#10A57B',   // Accent color (used for the focused state)
+    },
+  };
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -80,18 +89,20 @@ export default function Login({ navigation }) {
             </View>
             <RNText style={styles.text}>Welcome back</RNText>
 
+
             <TextInput
-              label="Email"
-              mode="outlined"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              style={styles.textInput}
-              blurOnSubmit={true}
-              value={email}
-              onChangeText={setEmail}
-              ref={emailInputRef}
-            />
+            label="Email"
+            mode="outlined"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={[styles.textInput]}
+            blurOnSubmit={true}
+            value={email}
+            onChangeText={setEmail}
+            ref={emailInputRef}
+            theme={theme}
+            textContentType={'oneTimeCode'}
+          />
 
             <TextInput
               label="Password"
@@ -102,6 +113,8 @@ export default function Login({ navigation }) {
               value={password}
               onChangeText={setPassword}
               right={<TextInput.Icon icon="eye" onPress={togglePasswordVisibility} />}
+              theme={theme}
+              textContentType={'oneTimeCode'}
             />
 
             <RNText style={styles.createAccountText}>
@@ -118,7 +131,7 @@ export default function Login({ navigation }) {
               iconColor={'#fff'}
               size={48}
               onPress={handleButtonPress}
-              containerColor={'#0fa47a'}
+              containerColor={'#10A57B'}
             />
           </View>
         </KeyboardAvoidingView>
@@ -173,7 +186,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   clickHereText: {
-    color: '#0fa47a',
+    color: '#10A57B',
     fontWeight: 'bold',
   },
   buttonContainer: {

@@ -11,7 +11,6 @@ import settingPage from '../components/settings';
 import aboutScreen from '../components/aboutScreen';
 import AuthContext from './AuthContext';
 
-
 const Stack = createNativeStackNavigator();
 
 const LogoTitle = ({ onPress }) => {
@@ -25,7 +24,6 @@ const LogoTitle = ({ onPress }) => {
   );
 };
 
-
 function MyStack() {
   const { userToken, signOut } = useContext(AuthContext);
   const [visible, setVisible] = useState(false);
@@ -34,16 +32,14 @@ function MyStack() {
     signOut();
   };
 
-  const openAbout = ({navigation}) => {
-
-       navigation.navigate("About");   
-      
-   
-  };
-
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
-  
+
+  const openAbout = (navigation) => {
+    closeMenu();
+    navigation.navigate("About");
+  };
+
   return (
     <Provider>
       <NavigationContainer>
@@ -53,26 +49,25 @@ function MyStack() {
               <Stack.Screen
                 name="Home"
                 component={homePage}
-                options={{
+                options={({ navigation }) => ({
                   headerRight: () => (
                     <Menu
                       visible={visible}
                       onDismiss={closeMenu}
                       anchor={<LogoTitle onPress={openMenu} />}
                     >                      
-                      <Menu.Item onPress={openAbout } title="About" />
+                      <Menu.Item onPress={() => openAbout(navigation)} title="About" />
                       <Divider />
                       <Menu.Item onPress={handleSignOut} title="Logout" />
                     </Menu>
                   ),
-                }}
+                })}
               />
-
 
               <Stack.Screen
                 name="Settings"
                 component={settingPage}
-                options={{
+                options={({ navigation }) => ({
                   headerRight: () => (
                     <Menu
                       visible={visible}
@@ -81,15 +76,17 @@ function MyStack() {
                     >
                       <Menu.Item onPress={closeMenu} title="Settings" />
                       <Divider />
-                      
                       <Menu.Item onPress={handleSignOut} title="Logout" />
                     </Menu>
                   ),
-                }}
+                })}
               />
 
-
-
+              <Stack.Screen
+                name="About"
+                component={aboutScreen}
+                options={{ headerShown: true }}
+              />
             </>
           ) : (
             <>
@@ -108,16 +105,6 @@ function MyStack() {
                 component={register}
                 options={{ headerShown: false }}
               />
-
-              <Stack.Screen
-                name= "About"
-                component={aboutScreen}
-                options={{ headerShown: false }}
-                
-              />
-
-
-
             </>
           )}
         </Stack.Navigator>
@@ -125,6 +112,5 @@ function MyStack() {
     </Provider>
   );
 }
-
 
 export default MyStack;

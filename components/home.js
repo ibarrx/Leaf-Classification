@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Card, Title, Text } from 'react-native-paper';
-import { View, ScrollView, TouchableOpacity, StyleSheet, Button, Image } from 'react-native';
+import { View, ScrollView, TouchableOpacity, StyleSheet, Button, Image, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
@@ -50,6 +50,8 @@ const HomeScreen = () => {
   const [image, setImage] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
   const { userToken, userEmail } = useAuth();
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     (async () => {
       const status = await requestCameraPermission();
@@ -58,51 +60,46 @@ const HomeScreen = () => {
   }, []);
 
   const uploadImage = async (uri, base64Data) => {
+    setLoading(true); // Set loading to true when starting the request
+
     let formData = new FormData();
-    // Assuming `email` and `token` are correctly defined and accessible here
-    formData.append('userID', userEmail); // Make sure 'email' is defined
-  
-    // Splitting the URI to get the file name and type
+    formData.append('userID', userEmail);
+
     const uriParts = uri.split('/');
     const fileName = uriParts[uriParts.length - 1];
     const fileType = uri.split('.').pop();
-  
+
     formData.append('image', {
       uri: uri,
-      name: `upload.${fileType}`, // Ensure this name matches what your server expects
-      type: `image/${fileType}`, // Correct MIME type
+      name: `upload.${fileType}`,
+      type: `image/${fileType}`,
     });
-    // if ios or android 
-    
+
     formData.append('imageBase64', base64Data);
 
-    //console.log(base64Data);
-    
     try {
-
-      const request = await fetch('http://18.217.177.182:5000/upload_image', {
+      const response = await fetch('http://18.217.177.182:5000/upload_image', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${userToken}`, // Ensure the token is correctly passed
-          // Do NOT explicitly set 'Content-Type': 'multipart/form-data'
-          // Let the browser/client set it
+          'Authorization': `Bearer ${userToken}`,
         },
         body: formData,
-      }).then(response => {return response.text()}).then(data => {
-        return (data ? JSON.parse(data) : {});
-      }).catch(error => { console.error(error); 
-        return (error) });
+      });
       
-      console.log(request);
-      alert(request.isAnomaly ? 'Anomaly detected!' : 'No anomaly detected.'); // Do what you want with the data here.
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      alert(data.isAnomaly ? 'Anomaly detected!' : 'No anomaly detected.');
 
     } catch (error) {
       console.error(error);
       alert('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
-  
-  
   
   
   const takePicture = async () => {
@@ -129,7 +126,7 @@ const HomeScreen = () => {
       base64: true,
     });
   
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setImage(result.uri);
       console.log(result);
       uploadImage(result.uri, result.base64); // Call upload function after image is set
@@ -145,6 +142,7 @@ const HomeScreen = () => {
   }
 
   return (
+    <>
     <ScrollView style={{ flex: 1 }}>
       <View style={styles.section}>
         <Title>View Submissions</Title>
@@ -179,7 +177,15 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+      
+
     </ScrollView>
+          {loading && (
+            <View style={styles.overlay}>
+              <ActivityIndicator animating={true} size="large" color="#0fa47a" style={{ transform: [{ scale: 2 }] }} />
+            </View>
+          )}
+          </>
   );
 };
 
@@ -257,7 +263,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     backgroundColor: '#FFFFFF',
     elevation: 3,
-    width: '48%', // Adjust as needed
+    width: '48%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -265,5 +271,15 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
