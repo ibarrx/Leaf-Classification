@@ -80,25 +80,22 @@ const HomeScreen = () => {
     
     try {
 
-      
-      const response = await fetch('http://192.168.1.77:5000/upload_image', {
+      const request = await fetch('http://192.168.1.77:5000/upload_image', {
         method: 'POST',
-        mode: 'no-cors',
-        body: formData,
         headers: {
           'Authorization': `Bearer ${userToken}`, // Ensure the token is correctly passed
           // Do NOT explicitly set 'Content-Type': 'multipart/form-data'
           // Let the browser/client set it
         },
-      });
-  
-      const responseJson = await response.json();
-      if (response.ok) {
-        alert('Upload successful');
-        console.log(responseJson);
-      } else {
-        alert(`Upload failed: ${responseJson.error}`);
-      }
+        body: formData,
+      }).then(response => {return response.text()}).then(data => {
+        return (data ? JSON.parse(data) : {});
+      }).catch(error => { console.error(error); 
+        return (error) });
+      
+      console.log(request);
+      alert(request.isAnomaly ? 'Anomaly detected!' : 'No anomaly detected.'); // Do what you want with the data here.
+      
     } catch (error) {
       console.error(error);
       alert('An error occurred. Please try again.');
