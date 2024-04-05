@@ -80,7 +80,7 @@ const HomeScreen = () => {
     
     try {
 
-      const request = await fetch('http://192.168.1.77:5000/upload_image', {
+      const request = await fetch('http://18.217.177.182:5000/upload_image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${userToken}`, // Ensure the token is correctly passed
