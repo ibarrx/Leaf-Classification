@@ -8,13 +8,17 @@ from firebase import firebase
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta, timezone
 import os
-from werkzeug.utils import secure_filename
+from model_inference import ModelInference
+
 firebase = firebase.FirebaseApplication('https://anomaleaf-d6feb-default-rtdb.firebaseio.com', None)
 app = Flask(__name__)
 CORS(app)
 bcrypt = Bcrypt(app)
 # Directory to save images
 IMAGE_UPLOAD_FOLDER = '.\\images'
+#print current directory
+print(os.getcwd())
+model_inference = ModelInference('API\\merged_model.h5')
 
 # Ensure the image upload folder exists
 os.makedirs(IMAGE_UPLOAD_FOLDER, exist_ok=True)
@@ -119,7 +123,17 @@ def upload_image():
         "isAnomaly": False,
         "userID": request.form['userID']
     }
+
+    #TODO: run inference on the image and figure out if it's an anomaly or not
+    is_anomaly = model_inference.predict(image_path)
+    print(type(is_anomaly))
+    print(bool(is_anomaly))
+    print(type(bool(is_anomaly)))
+    image_metadata["isAnomaly"] = bool(is_anomaly)
+    # Save the image metadata in Firebase
     firebase.post('/Images', image_metadata)
-    return jsonify({"message": "Image uploaded successfully", "imageID": image_id}), 201
+    return jsonify({"message": "Image uploaded successfully", 
+                    "imageID": image_id, 
+                    "isAnomaly": image_metadata["isAnomaly"]}), 201
 if __name__ == "__main__":
     app.run(debug=True, threaded=True, host="0.0.0.0", port=5000)
