@@ -23,7 +23,7 @@ export default function MyComponent({ navigation }) {
       }}
     >
       <Tab.Screen
-        name="home"
+        name="Home"
         component={HomeScreen}
         options={{
           tabBarLabel: 'Home',
