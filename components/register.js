@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react';
-import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, View, ActivityIndicator } from 'react-native';
-import { StyleSheet, Text as RNText, Image } from 'react-native';
-import { TextInput, IconButton } from 'react-native-paper';
+import React, { useState, useContext, useRef } from 'react';
+import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, View, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text as RNText, Image, Keyboard } from 'react-native';
+import { TextInput, IconButton, DefaultTheme } from 'react-native-paper';
 import { CommonActions } from '@react-navigation/native';
 import AuthContext from '../routes/AuthContext';
 
@@ -13,13 +13,24 @@ export default function Register({ navigation }) {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isValidEmail, setIsValidEmail] = useState(true); // state to track email validation
+    const emailInputRef = useRef(null);
+    const theme = {
+      ...DefaultTheme,
+      roundness: 2,
+      colors: {
+        ...DefaultTheme.colors,
+        primary: '#10A57B',
+        accent: '#10A57B',
+      },
+    };
 
     const handleButtonPress = async () => {
-      if (confirmPassword === password) {
+      if (confirmPassword === password && isValidEmail) { // Check for valid email format
         try {
           console.log('Start loading...');
           setLoading(true); // Start loading indicator
-          const response = await fetch('http://192.168.1.49:5000/signup', {
+          const response = await fetch('http://10.0.0.4:5000/signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -40,7 +51,7 @@ export default function Register({ navigation }) {
     
           console.log('Stop loading (Success)');
           const data = await response.json();
-          signIn(data.token);
+          signIn(data.token, email);
           navigation.navigate('Home');
         } catch (error) {
           console.error('Error:', error);
@@ -48,11 +59,12 @@ export default function Register({ navigation }) {
           setLoading(false); // Stop loading indicator
           console.log('Stop loading (Error)');
         }
+      } else if (!isValidEmail) {
+        Alert.alert('Please enter a valid email address.');
       } else {
         Alert.alert('Passwords do not match.');
       }
     };
-    
     
     const handleCreateAccountClick = () => {
       navigation.navigate('loginScreen');
@@ -65,84 +77,106 @@ export default function Register({ navigation }) {
     const toggleConfirmPasswordVisibility = () => {
       setConfirmPasswordVisible(!confirmPasswordVisible);
     };
+
+    const handleEmailChange = (text) => {
+      setEmail(text); // Update the email state
+
+      // Regular expression for email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isValid = emailRegex.test(text); // Test if the input matches the email format
+
+      setIsValidEmail(isValid); // Update the isValidEmail state
+    };
+
+    const dismissKeyboard = () => {
+      Keyboard.dismiss();
+      emailInputRef.current.blur();
+    };
   
     return (
-      <View style={styles.container}>
-        <KeyboardAvoidingView 
-          style={styles.content}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <View style={styles.content}>
-            <View style={styles.imageContainer}>
-              <Image
-                source={require('../assets/register.png')}
-                style={styles.image}
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <View style={styles.container}>
+          <KeyboardAvoidingView 
+            style={styles.content}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View style={styles.content}>
+              <View style={styles.imageContainer}>
+                <Image
+                  source={require('../assets/register.png')}
+                  style={styles.image}
+                />
+              </View>
+              <RNText style={styles.text}>Welcome Aboard!</RNText>
+      
+              {/* Email TextInput */}
+              <TextInput
+                label="Email"
+                mode="outlined"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.textInput}
+                blurOnSubmit={true}
+                value={email}
+                onChangeText={handleEmailChange} // Use the custom handler for email validation
+                error={!isValidEmail} // Apply error style if email is not valid
+                ref={emailInputRef}
+                theme={theme}
+              />
+      
+              {/* Password TextInput */}
+              <TextInput
+                label="Password"
+                mode="outlined"
+                secureTextEntry={!passwordVisible}
+                value={password}
+                onChangeText={setPassword}
+                autoCapitalize="none"
+                style={styles.textInput}
+                right={<TextInput.Icon  icon = 'eye' onPress={togglePasswordVisibility} />}
+                theme={theme}
+              />
+      
+              {/* Confirm Password TextInput */}
+              <TextInput
+                label="Confirm Password"
+                mode="outlined"
+                secureTextEntry={!confirmPasswordVisible}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                autoCapitalize="none"
+                style={styles.textInput}
+                right={<TextInput.Icon icon ='eye' onPress={toggleConfirmPasswordVisibility} />}                
+                theme={theme}
+              />
+      
+              {/* Create account text */}
+              <TouchableOpacity onPress={handleCreateAccountClick}>
+                <RNText style={styles.clickHereText}>Already have an account?</RNText>
+              </TouchableOpacity>
+            </View>
+      
+            <View style={styles.buttonContainer}>
+              <IconButton
+                icon="arrow-right"
+                iconColor={'#fff'}
+                size={48}
+                onPress={handleButtonPress}
+                containerColor={'#0fa47a'}
               />
             </View>
-            <RNText style={styles.text}>Welcome Aboard!</RNText>
-    
-            {/* Email TextInput */}
-            <TextInput
-              label="Email"
-              mode="outlined"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              style={styles.textInput}
-              blurOnSubmit={true}
-              value={email}
-              onChangeText={setEmail}
-            />
-    
-            {/* Password TextInput */}
-            <TextInput
-              label="Password"
-              mode="outlined"
-              secureTextEntry={!passwordVisible}
-              value={password}
-              onChangeText={setPassword}
-              autoCapitalize="none"
-              style={styles.textInput}
-              right={<TextInput.Icon  icon = 'eye' onPress={togglePasswordVisibility} />}
-            />
-    
-            {/* Confirm Password TextInput */}
-            <TextInput
-              label="Confirm Password"
-              mode="outlined"
-              secureTextEntry={!confirmPasswordVisible}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              autoCapitalize="none"
-              style={styles.textInput}
-              right={<TextInput.Icon icon ='eye' onPress={toggleConfirmPasswordVisibility} />}
-            />
-    
-            {/* Create account text */}
-            <TouchableOpacity onPress={handleCreateAccountClick}>
-              <RNText style={styles.clickHereText}>Already have an account?</RNText>
-            </TouchableOpacity>
-          </View>
-    
-          <View style={styles.buttonContainer}>
-            <IconButton
-              icon="arrow-right"
-              iconColor={'#fff'}
-              size={48}
-              onPress={handleButtonPress}
-              containerColor={'#0fa47a'}
-            />
-          </View>
-        </KeyboardAvoidingView>
-
-        {loading && (
-          <View style={styles.overlay}>
-            <ActivityIndicator animating = {true} size="large" color="#0fa47a" style={{ transform: [{ scale: 2 }] }}/>
-          </View>
-        )}
-
-        <StatusBar style="auto" />
-      </View>
+          </KeyboardAvoidingView>
+  
+          {loading && (
+            <View style={styles.overlay}>
+              <ActivityIndicator animating = {true} size="large" color="#0fa47a" style={{ transform: [{ scale: 2 }] }}/>
+            </View>
+          )}
+  
+          <StatusBar style="auto" />
+        </View>
+      </TouchableWithoutFeedback>
     );
 }
 

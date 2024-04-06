@@ -8,6 +8,7 @@ import login from '../components/login';
 import register from '../components/register';
 import homePage from '../components/home';
 import settingPage from '../components/settings';
+import aboutScreen from '../components/aboutScreen';
 import AuthContext from './AuthContext';
 
 const Stack = createNativeStackNavigator();
@@ -34,6 +35,11 @@ function MyStack() {
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
 
+  const openAbout = (navigation) => {
+    closeMenu();
+    navigation.navigate("About");
+  };
+
   return (
     <Provider>
       <NavigationContainer>
@@ -43,24 +49,25 @@ function MyStack() {
               <Stack.Screen
                 name="Home"
                 component={homePage}
-                options={{
+                options={({ navigation }) => ({
                   headerRight: () => (
                     <Menu
                       visible={visible}
                       onDismiss={closeMenu}
                       anchor={<LogoTitle onPress={openMenu} />}
-                    >
-                      <Menu.Item onPress={closeMenu} title="About" />
+                    >                      
+                      <Menu.Item onPress={() => openAbout(navigation)} title="About" />
                       <Divider />
                       <Menu.Item onPress={handleSignOut} title="Logout" />
                     </Menu>
                   ),
-                }}
+                })}
               />
+
               <Stack.Screen
                 name="Settings"
                 component={settingPage}
-                options={{
+                options={({ navigation }) => ({
                   headerRight: () => (
                     <Menu
                       visible={visible}
@@ -72,7 +79,13 @@ function MyStack() {
                       <Menu.Item onPress={handleSignOut} title="Logout" />
                     </Menu>
                   ),
-                }}
+                })}
+              />
+
+              <Stack.Screen
+                name="About"
+                component={aboutScreen}
+                options={{ headerShown: true }}
               />
             </>
           ) : (

@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react';
-import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, View, ActivityIndicator } from 'react-native';
-import { StyleSheet, Text as RNText, Image } from 'react-native';
-import { TextInput, IconButton } from 'react-native-paper';
+import React, { useState, useContext, useRef } from 'react';
+import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, View, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text as RNText, Image, Keyboard } from 'react-native';
+import { TextInput, IconButton, DefaultTheme } from 'react-native-paper';
 import AuthContext from '../routes/AuthContext';
 
 function navigateToHome(navigation) {
@@ -13,7 +13,17 @@ export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
+  const emailInputRef = useRef(null);
+  const theme = {
+    ...DefaultTheme,
+    roundness: 2,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: '#10A57B',
+      accent: '#10A57B',   // Accent color (used for the focused state)
+    },
+  };
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -23,7 +33,7 @@ export default function Login({ navigation }) {
     if (password !== '' && email !== '') {
       try {
         setLoading(true); // Set loading to true when starting the request
-        const response = await fetch('http://192.168.1.49:5000/login', {
+        const response = await fetch('http://10.0.0.4:5000/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -41,8 +51,8 @@ export default function Login({ navigation }) {
         }
 
         const data = await response.json();
-        signIn(data.token); // Set user token upon successful login
-        navigateToHome(navigation);
+        signIn(data.token, email); // Set user token upon successful login
+        navigateToHome(navigation); 
       } catch (error) {
         console.error('Error:', error);
         Alert.alert('Error', 'An error occurred. Please try again.');
@@ -58,71 +68,83 @@ export default function Login({ navigation }) {
     navigation.navigate('registerScreen');
   };
 
-  return (
-    <View style={styles.container}>
-      <KeyboardAvoidingView 
-        style={styles.content}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <View style={styles.content}>
-          <View style={styles.imageContainer}>
-            <Image
-              source={require('../assets/login.png')}
-              style={styles.image}
-            />
-          </View>
-          <RNText style={styles.text}>Welcome back</RNText>
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+    emailInputRef.current.blur();
+  };
 
-          <TextInput
+  return (
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <View style={styles.container}>
+        <KeyboardAvoidingView 
+          style={styles.content}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.content}>
+            <View style={styles.imageContainer}>
+              <Image
+                source={require('../assets/login.png')}
+                style={styles.image}
+              />
+            </View>
+            <RNText style={styles.text}>Welcome back</RNText>
+
+
+            <TextInput
             label="Email"
             mode="outlined"
             keyboardType="email-address"
             autoCapitalize="none"
-            autoCorrect={false}
-            style={styles.textInput}
+            style={[styles.textInput]}
             blurOnSubmit={true}
             value={email}
             onChangeText={setEmail}
+            ref={emailInputRef}
+            theme={theme}
+            textContentType={'oneTimeCode'}
           />
 
-          <TextInput
-            label="Password"
-            mode="outlined"
-            secureTextEntry={!passwordVisible}
-            autoCapitalize="none"
-            style={styles.textInput}
-            value={password}
-            onChangeText={setPassword}
-            right={<TextInput.Icon icon="eye" onPress={togglePasswordVisibility} />}
-          />
+            <TextInput
+              label="Password"
+              mode="outlined"
+              secureTextEntry={!passwordVisible}
+              autoCapitalize="none"
+              style={styles.textInput}
+              value={password}
+              onChangeText={setPassword}
+              right={<TextInput.Icon icon="eye" onPress={togglePasswordVisibility} />}
+              theme={theme}
+              textContentType={'oneTimeCode'}
+            />
 
-          <RNText style={styles.createAccountText}>
-            Need an account?{' '}
-            <TouchableOpacity onPress={handleCreateAccountClick}>
-              <RNText style={styles.clickHereText}>Click here!</RNText>
-            </TouchableOpacity>
-          </RNText>
-        </View>
+            <RNText style={styles.createAccountText}>
+              Need an account?{' '}
+              <TouchableOpacity onPress={handleCreateAccountClick}>
+                <RNText style={styles.clickHereText}>Click here!</RNText>
+              </TouchableOpacity>
+            </RNText>
+          </View>
 
-        <View style={styles.buttonContainer}>
-          <IconButton
-            icon="arrow-right"
-            iconColor={'#fff'}
-            size={48}
-            onPress={handleButtonPress}
-            containerColor={'#0fa47a'}
-          />
-        </View>
-      </KeyboardAvoidingView>
+          <View style={styles.buttonContainer}>
+            <IconButton
+              icon="arrow-right"
+              iconColor={'#fff'}
+              size={48}
+              onPress={handleButtonPress}
+              containerColor={'#10A57B'}
+            />
+          </View>
+        </KeyboardAvoidingView>
 
-      {loading && (
-        <View style={styles.overlay}>
-            <ActivityIndicator animating = {true} size="large" color="#0fa47a" style={{ transform: [{ scale: 2 }] }}/>
-        </View>
-      )}
+        {loading && (
+          <View style={styles.overlay}>
+              <ActivityIndicator animating = {true} size="large" color="#0fa47a" style={{ transform: [{ scale: 2 }] }}/>
+          </View>
+        )}
 
-      <StatusBar style="auto" />
-    </View>
+        <StatusBar style="auto" />
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -164,7 +186,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   clickHereText: {
-    color: '#0fa47a',
+    color: '#10A57B',
     fontWeight: 'bold',
   },
   buttonContainer: {

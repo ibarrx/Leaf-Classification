@@ -14,7 +14,6 @@ const Text = (props) => {
 
 export default function App( { navigation}) {
   const handleButtonPress = () => {
-    console.log('Home button pressed!');
     navigation.navigate('loginScreen');
   };
 
@@ -46,7 +45,7 @@ export default function App( { navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0fa47a',
+    backgroundColor: '#10A57B',
     alignItems: 'center',
     justifyContent: 'center',
   },
