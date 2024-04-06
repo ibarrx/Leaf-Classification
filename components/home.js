@@ -23,7 +23,7 @@ export default function MyComponent({ navigation }) {
       }}
     >
       <Tab.Screen
-        name="Home"
+        name="HomeTab"
         component={HomeScreen}
         options={{
           tabBarLabel: 'Home',
@@ -78,7 +78,7 @@ const HomeScreen = () => {
     formData.append('imageBase64', base64Data);
 
     try {
-      const response = await fetch('http://18.217.177.182:5000/upload_image', {
+      const response = await fetch('http://10.0.0.4:5000/upload_image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${userToken}`,

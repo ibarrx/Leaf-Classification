@@ -33,7 +33,7 @@ export default function Login({ navigation }) {
     if (password !== '' && email !== '') {
       try {
         setLoading(true); // Set loading to true when starting the request
-        const response = await fetch('http://18.217.177.182:5000/login', {
+        const response = await fetch('http://10.0.0.4:5000/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

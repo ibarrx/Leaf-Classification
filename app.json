@@ -22,7 +22,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
-        },
+      },
       "package": "com.Anomaleaf.Anomaleaf"
     },
     "web": {
@@ -32,6 +32,13 @@
       "eas": {
         "projectId": "550f4d10-3252-4114-8b28-f4baa1782f7f"
       }
-    }
+    },
+    "plugins": [
+      ["expo-build-properties", {
+        "android": {
+          "usesCleartextTraffic": true
+        }
+      }]
+    ]
   }
 }

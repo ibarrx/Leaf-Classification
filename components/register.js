@@ -30,7 +30,7 @@ export default function Register({ navigation }) {
         try {
           console.log('Start loading...');
           setLoading(true); // Start loading indicator
-          const response = await fetch('http://18.217.177.182:5000/signup', {
+          const response = await fetch('http://10.0.0.4:5000/signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
