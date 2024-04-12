@@ -18,7 +18,7 @@ bcrypt = Bcrypt(app)
 IMAGE_UPLOAD_FOLDER = '.\\images'
 #print current directory
 print(os.getcwd())
-model_inference = ModelInference('API\\merged_model.h5')
+model_inference = ModelInference('API\\cnn.h5')
 
 # Ensure the image upload folder exists
 os.makedirs(IMAGE_UPLOAD_FOLDER, exist_ok=True)
@@ -126,9 +126,6 @@ def upload_image():
 
     #TODO: run inference on the image and figure out if it's an anomaly or not
     is_anomaly = model_inference.predict(image_path)
-    print(type(is_anomaly))
-    print(bool(is_anomaly))
-    print(type(bool(is_anomaly)))
     image_metadata["isAnomaly"] = bool(is_anomaly)
     # Save the image metadata in Firebase
     firebase.post('/Images', image_metadata)
