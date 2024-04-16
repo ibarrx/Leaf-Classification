@@ -31,7 +31,7 @@ bcrypt = Bcrypt(app)
 IMAGE_UPLOAD_FOLDER = os.path.join(cwd, "images")
 
 print(os.getcwd())
-model_inference = ModelInference('API\\merged_model.h5')
+model_inference = ModelInference('API\\rembg_training.h5')
 
 os.makedirs(IMAGE_UPLOAD_FOLDER, exist_ok=True)
 app.config['SECRET_KEY'] = '3fe988e252dbd290c6710248b58658d0ee9f2bb2b5803d411fdbda78cb8463fa'

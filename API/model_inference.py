@@ -1,10 +1,11 @@
 # model_inference.py
 
 import tensorflow as tf
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+from tensorflow.keras.models import load_model # type: ignore
+from tensorflow.keras.preprocessing import image # type: ignore
 import numpy as np
 import os
+from rembg import remove
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 class ModelInference:
     def __init__(self, model_path):
@@ -15,11 +16,26 @@ class ModelInference:
         Loads and preprocesses the image for model prediction, ensuring it's in RGB format
         and normalized to the [0, 1] range.
         """
+        # Load the original image in RGB format
         img = image.load_img(image_path, target_size=target_size, color_mode='rgb')
+
+        # Remove background, 'remove' function returns an image with alpha channel
+        img = remove(img, alpha_matting=True)
+
+        # Convert the PIL image to a NumPy array
         img_array = image.img_to_array(img)
-        img_array /= 255.0  # Normalize image array to [0, 1]
+
+        # Ensure only 3 channels (RGB) are present, discarding the alpha channel if exists
+        if img_array.shape[2] == 4:  # Check if there's an alpha channel
+            img_array = img_array[:, :, :3]  # Keep only the first three channels (RGB)
+
+        # Normalize the image array to [0, 1]
+        img_array /= 255.0
+
+        # Add a new axis to fit model's input dimensions (batch size of 1)
         img_array_expanded_dims = np.expand_dims(img_array, axis=0)
         return img_array_expanded_dims
+
 
 
     def predict(self, image_path):

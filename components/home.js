@@ -78,7 +78,7 @@ const HomeScreen = ({navigation}) => {
     formData.append('imageBase64', base64Data);
 
     try {
-      const response = await fetch('http://10.0.0.4:5000/upload_image', {
+      const response = await fetch('http://192.168.1.77:5000/upload_image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${userToken}`,
