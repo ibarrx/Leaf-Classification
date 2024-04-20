@@ -28,7 +28,7 @@ app = Flask(__name__)
 CORS(app)
 bcrypt = Bcrypt(app)
 # Directory to save images
-IMAGE_UPLOAD_FOLDER = os.path.join(cwd, "images")
+IMAGE_UPLOAD_FOLDER = "images"
 
 print(os.getcwd())
 model_inference = ModelInference('API\\rembg_training.h5')
@@ -162,7 +162,7 @@ def get_Submissions():
 @app.route('/images/<path:image_filename>')
 def get_image(image_filename):
     # Construct the path to the image file
-    image_path = os.path.join(IMAGE_UPLOAD_FOLDER, image_filename)
+    image_path = os.path.join(cwd, IMAGE_UPLOAD_FOLDER, image_filename)
     
     # Check if the image file exists
     if os.path.isfile(image_path):
