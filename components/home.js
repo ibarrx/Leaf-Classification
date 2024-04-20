@@ -46,7 +46,7 @@ export default function MyComponent({ navigation }) {
   );
 }
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   const [image, setImage] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
   const { userToken, userEmail } = useAuth();
@@ -152,7 +152,7 @@ const HomeScreen = () => {
               <Icon name="history" size={24} />
               <Title style={styles.cardTitle}>Submission History</Title>
             </View>
-            <TouchableOpacity onPress={() => console.log('View button pressed')} style={styles.viewButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('Submission History')} style={styles.viewButton}>
               <Text style={styles.viewButtonText}>View</Text>
             </TouchableOpacity>
           </Card.Content>

@@ -9,6 +9,7 @@ import register from '../components/register';
 import homePage from '../components/home';
 import settingPage from '../components/settings';
 import aboutScreen from '../components/aboutScreen';
+import submissionScreen from '../components/submissions'
 import AuthContext from './AuthContext';
 
 const Stack = createNativeStackNavigator();
@@ -87,6 +88,26 @@ function MyStack() {
                 component={aboutScreen}
                 options={{ headerShown: true }}
               />
+
+              <Stack.Screen
+                name="Submission History"
+                component={submissionScreen}
+                options={({ navigation }) => ({
+                  headerRight: () => (
+                    <Menu
+                      visible={visible}
+                      onDismiss={closeMenu}
+                      anchor={<LogoTitle onPress={openMenu} />}
+                    >                      
+                      <Menu.Item onPress={() => openAbout(navigation)} title="About" />
+                      <Divider />
+                      <Menu.Item onPress={handleSignOut} title="Logout" />
+                    </Menu>
+                  ),
+                })}
+                
+              />
+
             </>
           ) : (
             <>

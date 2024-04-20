@@ -42,3 +42,4 @@ yarn-error.*
 #vscode
 /.vscode
 
+/API/firebasekey.json
