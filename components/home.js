@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Card, Title, Text } from 'react-native-paper';
-import { View, ScrollView, TouchableOpacity, StyleSheet, Button, Image, ActivityIndicator } from 'react-native';
+import { View, ScrollView, TouchableOpacity, StyleSheet, Button, Image, ActivityIndicator, Switch } from 'react-native';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
@@ -15,7 +15,7 @@ const requestCameraPermission = async () => {
   return status;
 };
 
-export default function MyComponent({ navigation }) {
+export default function Home({ navigation }) {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -38,7 +38,7 @@ export default function MyComponent({ navigation }) {
         options={{
           tabBarLabel: 'Settings',
           tabBarIcon: ({ color, size }) => {
-            return <Icon name="cog" size={size} color={color} />;
+            return <Icon name="cog" size={size} color={'color'} />;
           },
         }}
       />
@@ -59,7 +59,7 @@ const HomeScreen = ({navigation}) => {
     })();
   }, []);
 
-  const uploadImage = async (uri, base64Data) => {
+  const uploadImage = async (uri, base64Data, showResults=true) => {
     setLoading(true); // Set loading to true when starting the request
 
     let formData = new FormData();
@@ -78,7 +78,7 @@ const HomeScreen = ({navigation}) => {
     formData.append('imageBase64', base64Data);
 
     try {
-      const response = await fetch('http://192.168.1.77:5000/upload_image', {
+      const response = await fetch('http://10.0.0.4:5000/upload_image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${userToken}`,
@@ -91,7 +91,16 @@ const HomeScreen = ({navigation}) => {
       }
 
       const data = await response.json();
-      alert(data.isAnomaly ? 'Anomaly detected!' : 'No anomaly detected.');
+      if(showResults == false)
+      {
+        return data; // Return response data without showing results
+      }
+      else {
+        navigation.navigate('Result', {
+          anomalyStatus: data.isAnomaly ? 'Anomaly Detected' : 'Normal Leaf',
+          captureDate: data.timestamp, imageURL: data.imageURL
+        });
+      }
 
     } catch (error) {
       console.error(error);
@@ -100,7 +109,6 @@ const HomeScreen = ({navigation}) => {
       setLoading(false);
     }
   };
-  
   
   const takePicture = async () => {
     let result = await ImagePicker.launchCameraAsync({
@@ -112,11 +120,29 @@ const HomeScreen = ({navigation}) => {
     });
   
     if (!result.canceled) {
-      setImage(result.uri);
-      uploadImage(result.uri, result.base64); // Call upload function after image is set
+      setImage(result.assets[0].uri);
+      uploadImage(result.assets[0].uri, result.assets[0].base64); // Call upload function after image is set
     }
   };
+
+  const batchScan = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      aspect: [4, 3],
+      quality: 1,
+      base64: true,
+      allowsMultipleSelection: true,
+    });
   
+    if (!result.canceled) {
+      const selectedImages = result.assets;
+      // Loop through each selected image and upload it
+      selectedImages.forEach(async (image) => {
+        await uploadImage(image.uri, image.base64, false);
+      });
+    }
+  };
+
   const selectImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -127,12 +153,11 @@ const HomeScreen = ({navigation}) => {
     });
   
     if (!result.canceled) {
-      setImage(result.uri);
+      setImage(result.assets[0].uri);
       console.log(result);
-      uploadImage(result.uri, result.base64); // Call upload function after image is set
+      uploadImage(result.assets[0].uri, result.assets[0].base64); // Call upload function after image is set
     }
   };
-  
 
   if (hasPermission === null) {
     return <View />;
@@ -145,12 +170,12 @@ const HomeScreen = ({navigation}) => {
     <>
     <ScrollView style={{ flex: 1 }}>
       <View style={styles.section}>
-        <Title>View Submissions</Title>
+        <Title style ={{color: '#000'}}>View Submissions</Title>
         <Card style={[styles.card, { marginTop:24, marginBottom: 24 }]}>
           <Card.Content style={styles.cardContent}>
             <View style={styles.cardRow}>
               <Icon name="history" size={24} />
-              <Title style={styles.cardTitle}>Submission History</Title>
+              <Title style={[styles.cardTitle,{color: '#000'}]}>Submission History</Title>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('Submission History')} style={styles.viewButton}>
               <Text style={styles.viewButtonText}>View</Text>
@@ -160,20 +185,20 @@ const HomeScreen = ({navigation}) => {
       </View>
 
       <View style={[styles.section, { marginTop: 24 }]}>
-        <Title style={styles.submissionTitle}>New Submission</Title>
+        <Title style={[styles.submissionTitle, {color: '#000'}]}>New Submission</Title>
         <TouchableOpacity style={[styles.scanCard, styles.newScan]} onPress={takePicture}>
           <Icon name="camera" size={64} />
-          <Text style={styles.buttonText}>New Scan</Text>
+          <Text style={[styles.buttonText, {color: '#000'}]}>New Scan</Text>
         </TouchableOpacity>
         <View style={styles.scanOptions}>
           <TouchableOpacity style={styles.scanOptionCard} onPress={selectImage}>
             <Icon name="upload" size={48} />
-            <Text style={styles.buttonText}>Upload Scan</Text>
+            <Text style={[styles.buttonText, {color: '#000'}]}>Upload Scan</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.scanOptionCard}>
+          <TouchableOpacity style={styles.scanOptionCard} onPress={batchScan}>
             <Icon name="view-grid-plus" size={48} />
-            <Text style={styles.buttonText}>Batch Scan</Text>
+            <Text style={[styles.buttonText, {color: '#000'}]}>Batch Scan</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -189,11 +214,49 @@ const HomeScreen = ({navigation}) => {
   );
 };
 
-function SettingsScreen() {
-  return (
-    <Text>Settings!</Text>
+const SettingsScreen = ({ navigation }) => {
+  const [darkMode, setDarkMode] = useState(false);
+
+  const changePassword = () => {
+    // Implement change password functionality
+    navigation.navigate('Reset Password');
+  };
+
+  const toggleDarkMode = () => {
+    // Toggle dark mode
+    setDarkMode(!darkMode);
+  };
+
+  const handleDarkModePress = () => {
+    // Toggle dark mode when the Dark Mode section is pressed
+    setDarkMode(!darkMode);
+  };
+
+  return (    
+    <ScrollView>    
+      <View style={styles.container}>
+        {/* Large title */}
+        <Title style={{ fontSize: 24, marginBottom: 20, color: '#000', textAlign: 'center', fontWeight: 'bold' }}>User Settings</Title>
+
+        {/* Change Password option */}
+        <TouchableOpacity style={styles.option} onPress={changePassword}>
+          <Text style={[styles.optionText, { color: '#000' }]}>Change Password</Text>
+        </TouchableOpacity>
+        <View style={styles.line}></View>
+
+        {/* Dark Mode option */}
+        <TouchableOpacity style={styles.option} onPress={handleDarkModePress}>
+          <Text style={[styles.optionText, { color: '#000' }]}>Dark Mode</Text>
+          <Switch
+            value={darkMode}
+            onValueChange={toggleDarkMode}
+          />
+        </TouchableOpacity>
+        <View style={styles.line}></View>
+      </View>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   section: {
@@ -281,5 +344,29 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 20,
+  },
+  optionText: {
+    fontSize: 20,
+  },
+  line: {
+    height: 1,
+    backgroundColor: '#ccc',
+  },
+  darkModeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  darkModeLabel: {
+    marginRight: 10,
   },
 });

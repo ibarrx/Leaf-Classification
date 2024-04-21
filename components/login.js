@@ -33,7 +33,7 @@ export default function Login({ navigation }) {
     if (password !== '' && email !== '') {
       try {
         setLoading(true); // Set loading to true when starting the request
-        const response = await fetch('http://192.168.1.77:5000/login', {
+        const response = await fetch('http://10.0.0.4:5000/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export default function Login({ navigation }) {
               style={styles.textInput}
               value={password}
               onChangeText={setPassword}
-              right={<TextInput.Icon icon="eye" onPress={togglePasswordVisibility} />}
+              right={<TextInput.Icon icon={passwordVisible ? 'eye-off' : 'eye'} onPress={() => setPasswordVisible(!passwordVisible)} />}
               theme={theme}
               textContentType={'oneTimeCode'}
             />

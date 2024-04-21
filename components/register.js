@@ -30,7 +30,7 @@ export default function Register({ navigation }) {
         try {
           console.log('Start loading...');
           setLoading(true); // Start loading indicator
-          const response = await fetch('http://192.168.1.77:5000/signup', {
+          const response = await fetch('http://10.0.0.4:5000/signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ export default function Register({ navigation }) {
                 onChangeText={setPassword}
                 autoCapitalize="none"
                 style={styles.textInput}
-                right={<TextInput.Icon  icon = 'eye' onPress={togglePasswordVisibility} />}
+                right={<TextInput.Icon icon={passwordVisible ? 'eye-off' : 'eye'} onPress={() => setPasswordVisible(!passwordVisible)} />}
                 theme={theme}
               />
       
@@ -147,7 +147,7 @@ export default function Register({ navigation }) {
                 onChangeText={setConfirmPassword}
                 autoCapitalize="none"
                 style={styles.textInput}
-                right={<TextInput.Icon icon ='eye' onPress={toggleConfirmPasswordVisibility} />}                
+                right={<TextInput.Icon icon={passwordVisible ? 'eye-off' : 'eye'} onPress={() => setPasswordVisible(!passwordVisible)} />}
                 theme={theme}
               />
       
