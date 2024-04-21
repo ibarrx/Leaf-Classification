@@ -112,7 +112,7 @@ export default function Login({ navigation }) {
               style={styles.textInput}
               value={password}
               onChangeText={setPassword}
-              right={<TextInput.Icon icon="eye" onPress={togglePasswordVisibility} />}
+              right={<TextInput.Icon icon={passwordVisible ? 'eye-off' : 'eye'} onPress={() => setPasswordVisible(!passwordVisible)} />}
               theme={theme}
               textContentType={'oneTimeCode'}
             />

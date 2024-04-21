@@ -121,6 +121,41 @@ def login():
     else:
         return jsonify({"error": "Method not allowed."}), 405
 
+@app.route("/resetPassword", methods=["POST"])
+def reset_password():
+    if request.method == "POST":
+        if not request.json:
+            return jsonify({"error": "No data provided."}), 400
+        else:
+            old_password = request.json.get("oldPassword")
+            new_password = request.json.get("newPassword")
+            email = request.json.get("email")
+
+            # Fetch user data from the database
+            user_ref = db.reference('Users')
+            users = user_ref.get()
+
+            if users is None:
+                return jsonify({"error": "No users found."}), 404
+
+            # Check if user exists and old password matches
+            for user_id, user_data in users.items():
+                if user_data.get("UserEmail") == email:
+                    stored_password = user_data.get("UserPassword")
+                    if bcrypt.check_password_hash(stored_password, old_password):
+                        # Hash the new password
+                        hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+
+                        # Update the password in the database
+                        user_ref.child(user_id).update({"UserPassword": hashed_password})
+                        return jsonify({"message": "Password updated successfully."}), 200
+                    else:
+                        return jsonify({"error": "Old password is incorrect."}), 401
+
+            return jsonify({"error": "User not found."}), 404
+    else:
+        return jsonify({"error": "Method not allowed."}), 405
+
 @app.route('/get_Submissions', methods=['POST'])
 def get_Submissions():
     userID = request.json.get("userID")
@@ -138,7 +173,8 @@ def get_Submissions():
     elif imageFilter == '2':  # Sort by oldest to newest
         sorted_images = sorted(images.values(), key=lambda x: x['timestamp'])
     elif imageFilter == '3':  # Sort by isAnomaly by date most recent
-        sorted_images = sorted(images.values(), key=itemgetter('isAnomaly', 'timestamp'), reverse=True)
+        sorted_images = [img for img in images.values() if img.get('isAnomaly')]
+        sorted_images.sort(key=lambda x: x['timestamp'], reverse=True)
     elif imageFilter == '4':  # Filter isAnomaly = false by date most recent
         sorted_images = [img for img in images.values() if not img['isAnomaly']]
         sorted_images.sort(key=lambda x: x['timestamp'], reverse=True)
@@ -146,7 +182,7 @@ def get_Submissions():
         return jsonify({"error": "Invalid filter type"}), 400
 
     # Retrieve image data for sorted images
-    image_urls = []
+    image_info = []
     for img in sorted_images:
         image_path = img.get('imageDirectory')  # Assuming 'imageDirectory' holds the image file path
         if image_path:
@@ -154,9 +190,14 @@ def get_Submissions():
             normalized_path = os.path.normpath(image_path)
             # Construct the URL for the image
             image_url = f"http://{request.host}/{normalized_path.replace(os.sep, '/')}"
-            image_urls.append(image_url)
+            image_info.append({
+                "url": image_url,
+                "isAnomaly": img.get('isAnomaly'),
+                "captureDate": img.get('timestamp')
+            })
 
-    return jsonify({"image_urls": image_urls}), 200
+    return jsonify({"images": image_info}), 200
+
 
 
 @app.route('/images/<path:image_filename>')
@@ -170,7 +211,7 @@ def get_image(image_filename):
         return send_file(image_path, mimetype='image/jpeg')  # Adjust mimetype based on image type
     else:
         return jsonify({"error": "Image not found"}), 404
-
+    
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
     # This assumes you've received the base64 encoded data in `imageBase64` field.
@@ -188,6 +229,10 @@ def upload_image():
     image_path = os.path.join(IMAGE_UPLOAD_FOLDER, f"{image_id}.jpg")
 
     image.save(image_path)
+
+    normalized_path = os.path.normpath(image_path)
+    # Construct the URL for the image
+    image_url = f"http://{request.host}/{normalized_path.replace(os.sep, '/')}"
 
     # Proceed to save image metadata in Firebase as before
     image_metadata = {
@@ -207,7 +252,9 @@ def upload_image():
     
     return jsonify({"message": "Image uploaded successfully", 
                     "imageID": image_id, 
-                    "isAnomaly": image_metadata["isAnomaly"]}), 201
+                    "isAnomaly": image_metadata["isAnomaly"],
+                    "timestamp": image_metadata["timestamp"],
+                    "imageURL": image_url}), 201
 
 
 if __name__ == "__main__":

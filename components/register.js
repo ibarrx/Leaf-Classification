@@ -134,7 +134,7 @@ export default function Register({ navigation }) {
                 onChangeText={setPassword}
                 autoCapitalize="none"
                 style={styles.textInput}
-                right={<TextInput.Icon  icon = 'eye' onPress={togglePasswordVisibility} />}
+                right={<TextInput.Icon icon={passwordVisible ? 'eye-off' : 'eye'} onPress={() => setPasswordVisible(!passwordVisible)} />}
                 theme={theme}
               />
       
@@ -147,7 +147,7 @@ export default function Register({ navigation }) {
                 onChangeText={setConfirmPassword}
                 autoCapitalize="none"
                 style={styles.textInput}
-                right={<TextInput.Icon icon ='eye' onPress={toggleConfirmPasswordVisibility} />}                
+                right={<TextInput.Icon icon={passwordVisible ? 'eye-off' : 'eye'} onPress={() => setPasswordVisible(!passwordVisible)} />}
                 theme={theme}
               />
       
