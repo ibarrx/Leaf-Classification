@@ -13,7 +13,7 @@ const AboutScreen = ({ navigation }) => {
     },
     {
       name: 'Angel Ibarra',
-      title: 'Full Stack Developer',
+      title: 'Frontend | Backend Developer',
       linkedin: 'https://www.linkedin.com/in/angel-ibarra-42bb33103/',
       photo: require('../assets/angel.jpg')
     },

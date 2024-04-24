@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { TextInput, Button, Text as RNText, DefaultTheme } from 'react-native-paper';
+import { API_URL } from "@env"
 import { useAuth } from '../routes/AuthContext';
 
 const ResetPassword = ({ navigation }) => {
@@ -37,7 +38,7 @@ const ResetPassword = ({ navigation }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://10.0.0.4:5000/resetPassword', {
+      const response = await fetch(API_URL + '/resetPassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

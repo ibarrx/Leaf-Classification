@@ -75,7 +75,8 @@ def signup():
             token = jwt.encode({
                 'user_id': user_email,
                 'exp': datetime.now(timezone.utc) + timedelta(days=60)  # Token expiry in 60 days
-            }, app.config['SECRET_KEY'])
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+
 
             # Return the token in the response
             return jsonify({"token": token}), 201
@@ -107,10 +108,12 @@ def login():
             # Verify the password
             if bcrypt.check_password_hash(user_data.get("UserPassword"), user_password):
                 # Generate JWT token
+            # Generate JWT token for the new user
                 token = jwt.encode({
-                    'user_id': user_data.get("UserEmail"),
+                    'user_id': user_email,
                     'exp': datetime.now(timezone.utc) + timedelta(days=60)  # Token expiry in 60 days
-                }, app.config['SECRET_KEY'])
+                }, app.config['SECRET_KEY'], algorithm='HS256',)
+
                 return jsonify({"token": token, "id": user_data.get("UserEmail")}), 200
             else:
                 return jsonify({"error": "Wrong email or password"}), 401
@@ -156,7 +159,7 @@ def reset_password():
 def get_Submissions():
     userID = request.json.get("userID")
     imageFilter = request.json.get("filterType")
-    
+     
     # Retrieve images from Firebase
     images_ref = root.child('Images')
     images = images_ref.order_by_child('userID').equal_to(userID).get()

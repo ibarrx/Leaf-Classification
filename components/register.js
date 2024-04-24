@@ -3,6 +3,7 @@ import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, Vie
 import { StyleSheet, Text as RNText, Image, Keyboard } from 'react-native';
 import { TextInput, IconButton, DefaultTheme } from 'react-native-paper';
 import { CommonActions } from '@react-navigation/native';
+import { API_URL } from "@env"
 import AuthContext from '../routes/AuthContext';
 
 export default function Register({ navigation }) {
@@ -30,7 +31,7 @@ export default function Register({ navigation }) {
         try {
           console.log('Start loading...');
           setLoading(true); // Start loading indicator
-          const response = await fetch('http://10.0.0.4:5000/signup', {
+          const response = await fetch(API_URL + '/signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
