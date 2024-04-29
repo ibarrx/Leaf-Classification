@@ -4,15 +4,12 @@ from PIL import Image
 import jwt
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from firebase import firebase
+from firebase_admin import credentials, db
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta, timezone
 import os
-from operator import itemgetter
 from model_inference import ModelInference
 import firebase_admin
-from firebase_admin import credentials, db
-from operator import itemgetter
 
 cwd = os.getcwd()
 # Initialize Firebase Admin SDK
