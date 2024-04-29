@@ -4,15 +4,12 @@ from PIL import Image
 import jwt
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from firebase import firebase
+from firebase_admin import credentials, db
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta, timezone
 import os
-from operator import itemgetter
 from model_inference import ModelInference
 import firebase_admin
-from firebase_admin import credentials, db
-from operator import itemgetter
 
 cwd = os.getcwd()
 # Initialize Firebase Admin SDK
@@ -75,7 +72,8 @@ def signup():
             token = jwt.encode({
                 'user_id': user_email,
                 'exp': datetime.now(timezone.utc) + timedelta(days=60)  # Token expiry in 60 days
-            }, app.config['SECRET_KEY'])
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+
 
             # Return the token in the response
             return jsonify({"token": token}), 201
@@ -107,10 +105,12 @@ def login():
             # Verify the password
             if bcrypt.check_password_hash(user_data.get("UserPassword"), user_password):
                 # Generate JWT token
+            # Generate JWT token for the new user
                 token = jwt.encode({
-                    'user_id': user_data.get("UserEmail"),
+                    'user_id': user_email,
                     'exp': datetime.now(timezone.utc) + timedelta(days=60)  # Token expiry in 60 days
-                }, app.config['SECRET_KEY'])
+                }, app.config['SECRET_KEY'], algorithm='HS256',)
+
                 return jsonify({"token": token, "id": user_data.get("UserEmail")}), 200
             else:
                 return jsonify({"error": "Wrong email or password"}), 401
@@ -155,8 +155,9 @@ def reset_password():
 @app.route('/get_Submissions', methods=['POST'])
 def get_Submissions():
     userID = request.json.get("userID")
-    imageFilter = request.json.get("filterType")
     
+    imageFilter = request.json.get("filterType")
+     
     # Retrieve images from Firebase
     images_ref = root.child('Images')
     images = images_ref.order_by_child('userID').equal_to(userID).get()

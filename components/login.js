@@ -2,6 +2,8 @@ import React, { useState, useContext, useRef } from 'react';
 import { StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, View, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
 import { StyleSheet, Text as RNText, Image, Keyboard } from 'react-native';
 import { TextInput, IconButton, DefaultTheme } from 'react-native-paper';
+import { API_URL } from "@env"
+import { AsyncStorage } from '@react-native-async-storage/async-storage';
 import AuthContext from '../routes/AuthContext';
 
 function navigateToHome(navigation) {
@@ -33,7 +35,7 @@ export default function Login({ navigation }) {
     if (password !== '' && email !== '') {
       try {
         setLoading(true); // Set loading to true when starting the request
-        const response = await fetch('http://10.0.0.4:5000/login', {
+        const response = await fetch(API_URL + '/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

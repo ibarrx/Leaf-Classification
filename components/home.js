@@ -4,8 +4,9 @@ import { Card, Title, Text } from 'react-native-paper';
 import { View, ScrollView, TouchableOpacity, StyleSheet, Button, Image, ActivityIndicator, Switch } from 'react-native';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { Camera } from 'expo-camera';
 import { useAuth } from '../routes/AuthContext';
+import { API_URL } from "@env"
+import { useColorScheme } from 'nativewind';
 
 
 const Tab = createBottomTabNavigator();
@@ -38,7 +39,7 @@ export default function Home({ navigation }) {
         options={{
           tabBarLabel: 'Settings',
           tabBarIcon: ({ color, size }) => {
-            return <Icon name="cog" size={size} color={'color'} />;
+            return <Icon name="cog" size={size} color={color} />;
           },
         }}
       />
@@ -51,6 +52,8 @@ const HomeScreen = ({navigation}) => {
   const [hasPermission, setHasPermission] = useState(null);
   const { userToken, userEmail } = useAuth();
   const [loading, setLoading] = useState(false);
+  const { colorScheme, toggleColorScheme } = useColorScheme();
+
 
   useEffect(() => {
     (async () => {
@@ -78,7 +81,7 @@ const HomeScreen = ({navigation}) => {
     formData.append('imageBase64', base64Data);
 
     try {
-      const response = await fetch('http://10.0.0.4:5000/upload_image', {
+      const response = await fetch(API_URL + '/upload_image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${userToken}`,
@@ -216,6 +219,17 @@ const HomeScreen = ({navigation}) => {
 
 const SettingsScreen = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(false);
+
+  const isDarkMode = async() => {
+    try {
+      let isDarkMode = await AsyncStorage.getItem('isDarkMode');
+      setDarkMode(isDarkMode);
+    }
+    catch(e)
+    {
+      console.log(`isDarkMode in eror @{e}`);
+    }
+  }
 
   const changePassword = () => {
     // Implement change password functionality

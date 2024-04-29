@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Modal, FlatList, Image } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Card } from 'react-native-paper';
+import { API_URL } from "@env"
 import { useAuth } from '../routes/AuthContext';
 
 export default function Submissions({ navigation }) {
@@ -23,7 +24,7 @@ export default function Submissions({ navigation }) {
 
   const fetchSubmissions = async () => {
     try {
-      const response = await fetch('http://10.0.0.4:5000/get_Submissions', {
+      const response = await fetch(API_URL + '/get_Submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
