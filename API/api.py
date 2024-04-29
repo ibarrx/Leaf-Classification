@@ -158,6 +158,7 @@ def reset_password():
 @app.route('/get_Submissions', methods=['POST'])
 def get_Submissions():
     userID = request.json.get("userID")
+    
     imageFilter = request.json.get("filterType")
      
     # Retrieve images from Firebase

@@ -8,7 +8,7 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
-  const [userEmail, setUserEmail] = useState(null); // Added state for userEmail
+  const [userEmail, setUserEmail] = useState(null); 
 
   // Updated signIn to accept both token and email
   const signIn = (token, email) => {
