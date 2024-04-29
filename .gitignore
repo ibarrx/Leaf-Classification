@@ -1,6 +1,7 @@
 /data/tomato/.ipynb_checkpoints/
 *.pickle
 /data/tomato/__pycache__
+/images
 
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
@@ -41,3 +42,4 @@ yarn-error.*
 #vscode
 /.vscode
 
+/API/firebasekey.json
