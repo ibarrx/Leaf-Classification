@@ -3,6 +3,8 @@
 /data/tomato/__pycache__
 /images
 
+/data/tomato/newleafdatasetbgrem10k
+
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 # dependencies
