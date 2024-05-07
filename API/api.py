@@ -28,7 +28,7 @@ bcrypt = Bcrypt(app)
 IMAGE_UPLOAD_FOLDER = "images"
 
 print(os.getcwd())
-model_inference = ModelInference('API\\rembg_training.h5')
+model_inference = ModelInference('API\\newLeaf_classification_training.h5')
 
 # Ensure the image upload folder exists
 os.makedirs(IMAGE_UPLOAD_FOLDER, exist_ok=True)
