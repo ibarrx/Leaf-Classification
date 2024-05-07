@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../routes/AuthContext';
 import { API_URL } from "@env"
 import { useColorScheme } from 'nativewind';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 
 const Tab = createBottomTabNavigator();
@@ -63,8 +64,6 @@ const HomeScreen = ({navigation}) => {
   }, []);
 
   const uploadImage = async (uri, base64Data, showResults=true) => {
-    setLoading(true); // Set loading to true when starting the request
-
     let formData = new FormData();
     formData.append('userID', userEmail);
 
@@ -96,9 +95,10 @@ const HomeScreen = ({navigation}) => {
       const data = await response.json();
       if(showResults == false)
       {
-        return data; // Return response data without showing results
+        //do nothing
       }
       else {
+        setLoading(false);
         navigation.navigate('Result', {
           anomalyStatus: data.isAnomaly ? 'Anomaly Detected' : 'Normal Leaf',
           captureDate: data.timestamp, imageURL: data.imageURL
@@ -108,7 +108,6 @@ const HomeScreen = ({navigation}) => {
     } catch (error) {
       console.error(error);
       alert('An error occurred. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
@@ -117,12 +116,12 @@ const HomeScreen = ({navigation}) => {
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
       quality: 1,
       base64: true,
     });
   
     if (!result.canceled) {
+      setLoading(true); // Set loading to true when starting the request
       setImage(result.assets[0].uri);
       uploadImage(result.assets[0].uri, result.assets[0].base64); // Call upload function after image is set
     }
@@ -138,26 +137,39 @@ const HomeScreen = ({navigation}) => {
     });
   
     if (!result.canceled) {
+      setLoading(true); // Set loading to true when starting the request
       const selectedImages = result.assets;
-      // Loop through each selected image and upload it
-      selectedImages.forEach(async (image) => {
-        await uploadImage(image.uri, image.base64, false);
-      });
+      // Loop through each selected image and upload it one by one
+      for (const image of selectedImages) {
+        let resizedImage = image;
+        // Check if image dimensions are larger than 256x256
+        if (image.width > 256 || image.height > 256) {
+          // Resize image to fit within 256x256
+          resizedImage = await ImageManipulator.manipulateAsync(
+            image.uri,
+            [{ resize: { width: 256, height: 256 } }],
+            { compress: 1, base64: true }
+          );
+        }
+        await uploadImage(resizedImage.uri, resizedImage.base64, false);
+      }
+      setLoading(false);
+      alert('All images have been uploaded successfully!');
     }
   };
 
   const selectImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
       base64: true,
+      allowsEditing: true
     });
   
     if (!result.canceled) {
+      setLoading(true); // Set loading to true when starting the request
       setImage(result.assets[0].uri);
-      console.log(result);
       uploadImage(result.assets[0].uri, result.assets[0].base64); // Call upload function after image is set
     }
   };
@@ -258,14 +270,14 @@ const SettingsScreen = ({ navigation }) => {
         </TouchableOpacity>
         <View style={styles.line}></View>
 
-        {/* Dark Mode option */}
+        {/* Dark Mode option
         <TouchableOpacity style={styles.option} onPress={handleDarkModePress}>
           <Text style={[styles.optionText, { color: '#000' }]}>Dark Mode</Text>
           <Switch
             value={darkMode}
             onValueChange={toggleDarkMode}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <View style={styles.line}></View>
       </View>
     </ScrollView>

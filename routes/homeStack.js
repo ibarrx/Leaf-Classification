@@ -30,14 +30,57 @@ const LogoTitle = ({ onPress }) => {
 
 function MyStack() {
   const { userToken, signOut } = useContext(AuthContext);
-  const [visible, setVisible] = useState(false);
+  const [visibleHome, setVisibleHome] = useState(false);
+  const [visibleSettings, setVisibleSettings] = useState(false);
+  const [visibleSubmission, setVisibleSubmission] = useState(false);
+  const [visibleResults, setVisibleResults] = useState(false);
 
   const handleSignOut = () => {
     signOut();
   };
 
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
+  const openMenu = (screen) => {
+    switch (screen) {
+      case 'home':
+        setVisibleHome(true);
+        setVisibleSettings(false);
+        setVisibleSubmission(false);
+        setVisibleResults(false);
+        break;
+      case 'settings':
+        setVisibleHome(false);
+        setVisibleSettings(true);
+        setVisibleSubmission(false);
+        setVisibleResults(false);
+        break;
+      case 'submission':
+        setVisibleHome(false);
+        setVisibleSettings(false);
+        setVisibleSubmission(true);
+        setVisibleResults(false);
+        break;
+      case 'results':
+        setVisibleHome(false);
+        setVisibleSettings(false);
+        setVisibleSubmission(false);
+        setVisibleResults(true);
+        break;
+      // Add cases for other screens as needed
+      default:
+        setVisibleHome(false);
+        setVisibleSettings(false);
+        setVisibleSubmission(false);
+        setVisibleResults(false);
+    }
+  };
+
+  const closeMenu = () => {
+    setVisibleHome(false);
+    setVisibleSettings(false);
+    setVisibleSubmission(false);
+    setVisibleResults(false);
+    // Close other menus if needed
+  };
 
   const openAbout = (navigation) => {
     closeMenu();
@@ -51,14 +94,14 @@ function MyStack() {
           {userToken ? (
             <>
               <Stack.Screen
-                name="Home"
+                name="Anomaleaf"
                 component={homePage}
                 options={({ navigation }) => ({
                   headerRight: () => (
                     <Menu
-                      visible={visible}
+                      visible={visibleHome}
                       onDismiss={closeMenu}
-                      anchor={<LogoTitle onPress={openMenu} />}
+                      anchor={<LogoTitle onPress={() => openMenu('home')} />}
                     >                      
                       <Menu.Item onPress={() => openAbout(navigation)} title="About" />
                       <Divider />
@@ -67,6 +110,11 @@ function MyStack() {
                   ),
                 })}
               />
+              <Stack.Screen
+                name="About"
+                component={aboutScreen}
+                options={{ headerShown: true }}
+              />
 
               <Stack.Screen
                 name="Settings"
@@ -74,9 +122,9 @@ function MyStack() {
                 options={({ navigation }) => ({
                   headerRight: () => (
                     <Menu
-                      visible={visible}
+                      visible={visibleSettings}
                       onDismiss={closeMenu}
-                      anchor={<LogoTitle onPress={openMenu} />}
+                      anchor={<LogoTitle onPress={() => openMenu('settings')} />}
                     >
                       <Menu.Item onPress={closeMenu} title="Settings" />
                       <Divider />
@@ -87,20 +135,14 @@ function MyStack() {
               />
 
               <Stack.Screen
-                name="About"
-                component={aboutScreen}
-                options={{ headerShown: true }}
-              />
-
-              <Stack.Screen
                 name="Submission History"
                 component={submissionScreen}
                 options={({ navigation }) => ({
                   headerRight: () => (
                     <Menu
-                      visible={visible}
+                      visible={visibleSubmission}
                       onDismiss={closeMenu}
-                      anchor={<LogoTitle onPress={openMenu} />}
+                      anchor={<LogoTitle onPress={() => openMenu('submission')} />}
                     >                      
                       <Menu.Item onPress={() => openAbout(navigation)} title="About" />
                       <Divider />
@@ -108,17 +150,17 @@ function MyStack() {
                     </Menu>
                   ),
                 })}
-                
               />
+
               <Stack.Screen
                 name="Result"
                 component={resultsScreen}
                 options={({ navigation }) => ({
                   headerRight: () => (
                     <Menu
-                      visible={visible}
+                      visible={visibleResults}
                       onDismiss={closeMenu}
-                      anchor={<LogoTitle onPress={openMenu} />}
+                      anchor={<LogoTitle onPress={() => openMenu('results')} />}
                     >                      
                       <Menu.Item onPress={() => openAbout(navigation)} title="About" />
                       <Divider />
@@ -126,7 +168,6 @@ function MyStack() {
                     </Menu>
                   ),
                 })}
-                
               />
               <Stack.Screen
                 name="Reset Password"
@@ -165,7 +206,7 @@ function MyStack() {
               />
             </>
           ) : (
-            <>
+              <>
               <Stack.Screen
                 name="startUpScreen"
                 component={startUp}
@@ -188,5 +229,6 @@ function MyStack() {
     </Provider>
   );
 }
+
 
 export default MyStack;

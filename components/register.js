@@ -53,7 +53,7 @@ export default function Register({ navigation }) {
           console.log('Stop loading (Success)');
           const data = await response.json();
           signIn(data.token, email);
-          navigation.navigate('Home');
+          navigation.navigate('Anomaleaf');
         } catch (error) {
           console.error('Error:', error);
           Alert.alert('Error', 'An error occurred. Please try again.');
