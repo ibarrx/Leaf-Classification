@@ -21,7 +21,6 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
     "@react-navigation/stack": "^6.3.29",
-    "aws-amplify": "^6.3.0",
     "core-js": "^3.37.0",
     "exif-js": "^2.3.0",
     "expo": "^49.0.23",

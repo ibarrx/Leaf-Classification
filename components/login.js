@@ -71,9 +71,12 @@ export default function Login({ navigation }) {
   };
 
   const dismissKeyboard = () => {
-    Keyboard.dismiss();
-    emailInputRef.current.blur();
+    if (Platform.OS !== 'web') {
+      Keyboard.dismiss();
+      emailInputRef.current.blur();
+    }
   };
+  
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
