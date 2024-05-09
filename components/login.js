@@ -7,7 +7,7 @@ import { AsyncStorage } from '@react-native-async-storage/async-storage';
 import AuthContext from '../routes/AuthContext';
 
 function navigateToHome(navigation) {
-  navigation.navigate('Home');
+  navigation.navigate('Anomaleaf');
 }
 
 export default function Login({ navigation }) {
