@@ -90,9 +90,11 @@ export default function Register({ navigation }) {
     };
 
     const dismissKeyboard = () => {
+    if (Platform.OS !== 'web') {
       Keyboard.dismiss();
       emailInputRef.current.blur();
-    };
+    }
+  };
   
     return (
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
